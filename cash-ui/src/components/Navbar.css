@@ -1,0 +1,30 @@
+/* Navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background-color: #f0f0f0; /* grey header */
+  color: #222; /* dark text for contrast */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+
+.navbar-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.profile-icon {
+  font-size: 32px;
+  cursor: pointer;
+  color: #222;
+  transition: transform 0.2s;
+}
+
+.profile-icon:hover {
+  transform: scale(1.1);
+}
