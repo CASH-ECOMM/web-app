@@ -1,16 +1,18 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
-import Login from "./pages/Login"; 
-import Navbar from "./components/Navbar"; 
+import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <Router>
-      <Navbar /> {}
+      <Navbar />
       <Routes>
-        <Route path="/" element={<Signup />} /> {}
-        <Route path="/login" element={<Login />} /> {}
+        <Route path="/" element={<Signup />} /> 
+        <Route path="/login" element={<Login />} /> 
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );

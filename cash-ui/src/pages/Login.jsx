@@ -50,12 +50,12 @@ export default function Login() {
       <div className="signup-container">
         <h1 className="signup-heading">Login</h1>
         <p className="login-link">
-          Don't have an account? <Link to="/">Create Account</Link>
+          Don’t have an account? <Link to="/">Create Account</Link>
         </p>
 
         {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
 
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form onSubmit={handleSubmit} className="signup-form" style={{ gridTemplateColumns: "1fr" }}>
           <div className="form-group">
             <label>Username</label>
             <input
@@ -76,6 +76,10 @@ export default function Login() {
               required
             />
           </div>
+
+          <p className="login-link" style={{ marginTop: "-15px", textAlign: "left" }}>
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
 
           <button type="submit" className="signup-button" disabled={loading}>
             {loading ? "Logging In..." : "Login"}
