@@ -178,7 +178,6 @@ const ItemUpload = () => {
         display: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        minHeight: '100vh',
         padding: 3,
       }}
     >
