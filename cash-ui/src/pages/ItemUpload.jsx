@@ -138,6 +138,40 @@ const ItemUpload = () => {
     }
   };
 
+  const handlePost = async () => {
+    const isTitleValid = validateTitle(title);
+    const isDescriptionValid = validateDescription(description);
+    const isPriceValid = validatePrice(price);
+    const isDurationValid = validateDuration(duration);
+
+    if (
+      !isTitleValid ||
+      !isDescriptionValid ||
+      !isPriceValid ||
+      !isDurationValid
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          price: parseInt(price, 10),
+          duration: parseInt(duration, 10),
+        }),
+      });
+      if (response.ok) {
+        window.location.href = '/catalogue';
+      }
+    } catch (err) {
+      console.error('Error posting item:', err);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -151,7 +185,7 @@ const ItemUpload = () => {
       <Typography variant="h3" gutterBottom sx={{ mb: 4 }}>
         Item for auction
       </Typography>
-      <Stack spacing={3}>
+      <Stack spacing={3} sx={{ maxWidth: 750, width: '100%' }}>
         {/* Title - Full Width */}
         <FormControl fullWidth>
           <TextField
@@ -234,7 +268,11 @@ const ItemUpload = () => {
 
         {/* Post Button - Right Aligned */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <Button variant="contained" endIcon={<IosShareIcon />}>
+          <Button
+            variant="contained"
+            endIcon={<IosShareIcon />}
+            onClick={handlePost}
+          >
             Post
           </Button>
         </Box>
