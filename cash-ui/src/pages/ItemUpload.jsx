@@ -7,6 +7,10 @@ import FormLabel from '@mui/material/FormLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
+import IosShareIcon from '@mui/icons-material/IosShare';
 
 const ItemUpload = () => {
   const [title, setTitle] = useState('');
@@ -67,9 +71,9 @@ const ItemUpload = () => {
       return false;
     }
     const numValue = parseInt(value, 10);
-    if (isNaN(numValue) || numValue < 0) {
+    if (isNaN(numValue) || numValue < 1) {
       setPriceError(true);
-      setPriceErrorMessage('Price must be a positive integer');
+      setPriceErrorMessage('Price must be at least $1');
       return false;
     }
     if (numValue > 999999999) {
@@ -119,7 +123,7 @@ const ItemUpload = () => {
   const handlePriceChange = (e) => {
     const value = e.target.value;
     // Only allow digits (no commas, dots, or other characters)
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === '' || /^[1-9]\d*$/.test(value)) {
       setPrice(value);
       validatePrice(value);
     }
@@ -128,15 +132,26 @@ const ItemUpload = () => {
   const handleDurationChange = (e) => {
     const value = e.target.value;
     // Only allow digits (no commas, dots, or other characters)
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === '' || /^[1-9]\d*$/.test(value)) {
       setDuration(value);
       validateDuration(value);
     }
   };
 
   return (
-    <>
-      <Stack spacing={3} sx={{ width: '100%', maxWidth: '600px' }}>
+    <Box
+      sx={{
+        display: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        minHeight: '100vh',
+        padding: 3,
+      }}
+    >
+      <Typography variant="h3" gutterBottom sx={{ mb: 4 }}>
+        Item for auction
+      </Typography>
+      <Stack spacing={3}>
         {/* Title - Full Width */}
         <FormControl fullWidth>
           <TextField
@@ -184,9 +199,6 @@ const ItemUpload = () => {
               helperText={priceErrorMessage}
               color={priceError ? 'error' : 'primary'}
               inputMode="numeric"
-              inputProps={{
-                pattern: '[0-9]*',
-              }}
               slotProps={{
                 input: {
                   startAdornment: (
@@ -208,9 +220,6 @@ const ItemUpload = () => {
               helperText={durationErrorMessage}
               color={durationError ? 'error' : 'primary'}
               inputMode="numeric"
-              inputProps={{
-                pattern: '[0-9]*',
-              }}
               slotProps={{
                 input: {
                   endAdornment: (
@@ -222,8 +231,15 @@ const ItemUpload = () => {
             />
           </FormControl>
         </Box>
+
+        {/* Post Button - Right Aligned */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Button variant="contained" endIcon={<IosShareIcon />}>
+            Post
+          </Button>
+        </Box>
       </Stack>
-    </>
+    </Box>
   );
 };
 
