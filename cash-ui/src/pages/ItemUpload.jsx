@@ -10,7 +10,9 @@ import InputLabel from '@mui/material/InputLabel';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import apiClient from '../api/api';
 
 const ItemUpload = () => {
   const [title, setTitle] = useState('');
@@ -29,6 +31,8 @@ const ItemUpload = () => {
 
   const [durationError, setDurationError] = useState(false);
   const [durationErrorMessage, setDurationErrorMessage] = useState('');
+
+  const [apiError, setApiError] = useState('');
 
   const validateTitle = (value) => {
     if (value.length === 0) {
@@ -138,7 +142,13 @@ const ItemUpload = () => {
     }
   };
 
-  const handlePost = async () => {
+  const handlePost = async (e) => {
+    // Prevent default form submission if this is triggered by a form
+    if (e) {
+      e.preventDefault();
+    }
+    setApiError('');
+
     const isTitleValid = validateTitle(title);
     const isDescriptionValid = validateDescription(description);
     const isPriceValid = validatePrice(price);
@@ -150,25 +160,40 @@ const ItemUpload = () => {
       !isPriceValid ||
       !isDurationValid
     ) {
+      console.log('Validation failed');
       return;
     }
 
     try {
-      const response = await fetch('/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          price: parseInt(price, 10),
-          duration: parseInt(duration, 10),
-        }),
+      const response = await apiClient.post('/catalogue/items', {
+        title,
+        description,
+        startingPrice: parseInt(price, 10),
+        durationHours: parseInt(duration, 10),
       });
-      if (response.ok) {
-        window.location.href = '/catalogue';
-      }
+
+      // Axios automatically parses JSON, so we can access response.data directly
+      console.log('Item posted successfully:', response.data);
+
+      // Only redirect on success
+      window.location.href = '/catalogue';
     } catch (err) {
       console.error('Error posting item:', err);
+
+      // Set error message based on status code
+      let errorMessage = 'Failed to post item. Please try again.';
+
+      if (err.response?.status === 400) {
+        errorMessage =
+          err.response?.data?.message ||
+          'Invalid item data. Please check your inputs.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setApiError(errorMessage);
     }
   };
 
@@ -179,6 +204,8 @@ const ItemUpload = () => {
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         padding: 3,
+        ml: 6,
+        mt: 4,
       }}
     >
       <Typography variant="h3" gutterBottom sx={{ mb: 4 }}>
@@ -276,6 +303,25 @@ const ItemUpload = () => {
           </Button>
         </Box>
       </Stack>
+
+      {/* Error Alert - Fixed at bottom right */}
+      {apiError && (
+        <Alert
+          severity="error"
+          onClose={() => setApiError('')}
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            minWidth: 300,
+            maxWidth: 500,
+            zIndex: 9999,
+            boxShadow: 3,
+          }}
+        >
+          {apiError}
+        </Alert>
+      )}
     </Box>
   );
 };
