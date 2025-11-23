@@ -56,15 +56,15 @@ export default function Signup() {
     const payload = {
       username: form.username,
       password: form.password,
-      first_name: form.firstName,
-      last_name: form.lastName,
+      firstName: form.firstName,
+      lastName: form.lastName,
       email: form.email,
-      shipping_address: {
-        street_name: form.shippingAddress.streetName,
-        street_number: form.shippingAddress.streetNumber,
+      shippingAddress: {
+        streetName: form.shippingAddress.streetName,
+        streetNumber: form.shippingAddress.streetNumber,
         city: form.shippingAddress.city,
         country: form.shippingAddress.country,
-        postal_code: form.shippingAddress.postalCode,
+        postalCode: form.shippingAddress.postalCode,
       },
     };
 

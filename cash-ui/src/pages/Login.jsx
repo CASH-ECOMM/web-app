@@ -24,10 +24,14 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8080/api/users/signin', {
+      const res = await fetch('/api/users/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+        }),
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -37,13 +41,18 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem('token', data.jwt);
+      if (!data.jwt) {
+        setError('Login failed. No access token returned.');
+        return;
+      }
+
+      localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
 
       navigate('/catalogue');
     } catch (err) {
       console.error(err);
-      setError('Login failed. Please try again.');
+      setError('Could not connect to the server. Please try again.');
     }
   };
 
@@ -71,11 +80,7 @@ export default function Login() {
           </Alert>
         )}
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{ mt: 3, width: '100%' }}
-        >
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <TextField
             margin="normal"
             required
@@ -101,15 +106,7 @@ export default function Login() {
             Login
           </Button>
 
-          <Button
-            fullWidth
-            onClick={() => navigate('/forgot-password')}
-            sx={{ mt: 2 }}
-          >
-            Forgot password?
-          </Button>
-
-          <Button fullWidth onClick={() => navigate('/signup')} sx={{ mt: 1 }}>
+          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/signup')}>
             Create an account
           </Button>
         </Box>
