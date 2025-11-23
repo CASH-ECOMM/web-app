@@ -26,15 +26,17 @@ export default function ResetPassword() {
     setError('');
     setSuccess('');
 
+    localStorage.setItem('access_token', token);
+
     try {
-      const data = await apiClient.post('/reset-password', {
+      const data = await apiClient.post('/users/reset-password', {
         token,
         newPassword,
       });
-      setSuccess(data.message);
+      setSuccess(data.message || 'Your password has been reset successfully!');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Password reset failed');
     }
   };
 
