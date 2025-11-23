@@ -49,7 +49,6 @@ export default function Signup() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
     setError('');
     setSuccess('');
 
@@ -117,9 +116,13 @@ export default function Signup() {
         <Box
           component="form"
           onSubmit={handleSubmit}
-          sx={{ mt: 3, width: '100%' }}
+          sx={{
+            mt: 3,
+            width: '100%',
+            alignItems: 'center',
+          }}
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={2} sx={{ justifyContent: 'center' }}>
             {['firstName', 'lastName', 'username', 'email', 'password'].map(
               (field) => (
                 <Grid item xs={12} key={field}>
