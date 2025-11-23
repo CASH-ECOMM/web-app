@@ -46,6 +46,7 @@ export default function Login() {
         return;
       }
 
+      // Save access_token for other pages to detect login
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
 
@@ -106,7 +107,17 @@ export default function Login() {
             Login
           </Button>
 
-          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/signup')}>
+          {/* Forgot password link */}
+          <Button
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => navigate('/forgot-password')}
+          >
+            Forgot password?
+          </Button>
+
+          {/* Create account button */}
+          <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/signup')}>
             Create an account
           </Button>
         </Box>

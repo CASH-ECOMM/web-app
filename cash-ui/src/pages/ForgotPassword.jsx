@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
@@ -25,15 +26,20 @@ export default function ForgotPassword() {
     const res = await fetch('/api/users/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ username, email }),
     });
 
     if (!res.ok) {
-      setError('Unable to send reset link. Email may not exist.');
+      const data = await res.json();
+      setError(
+        data.message || 'Unable to send reset link. Email may not exist.'
+      );
       return;
     }
 
-    setNotice('If the email exists, a password reset link was sent.');
+    setNotice(
+      'If the username and email exist, a password reset link was sent.'
+    );
   };
 
   return (
@@ -71,6 +77,15 @@ export default function ForgotPassword() {
           onSubmit={handleSubmit}
           sx={{ mt: 3, width: '100%' }}
         >
+          <TextField
+            margin="normal"
+            fullWidth
+            required
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
           <TextField
             margin="normal"
             fullWidth
