@@ -26,13 +26,14 @@ export default function ResetPassword() {
     setError('');
     setSuccess('');
 
-    localStorage.setItem('access_token', token);
+    localStorage.setItem('access_token', token); // Temporarily store token as access_token
 
     try {
       const data = await apiClient.post('/users/reset-password', {
         token,
         newPassword,
       });
+      localStorage.removeItem('access_token'); // Remove the temporary token
       setSuccess(data.message || 'Your password has been reset successfully!');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
