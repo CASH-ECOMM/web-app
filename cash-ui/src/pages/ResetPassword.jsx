@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiCall } from '../api';
+import apiClient from '../api/api';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -27,12 +27,10 @@ export default function ResetPassword() {
     setSuccess('');
 
     try {
-      const data = await apiCall(
-        '/reset-password',
-        'POST',
-        { token, newPassword },
-        false
-      );
+      const data = await apiClient.post('/reset-password', {
+        token,
+        newPassword,
+      });
       setSuccess(data.message);
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
