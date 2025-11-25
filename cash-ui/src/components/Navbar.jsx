@@ -18,7 +18,7 @@ import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { logoutUser } from '../services/auth';
 
-const pages = ['Catalogue', 'My Items', 'Past Auctions', 'Contact'];
+const pages = ['Catalogue', 'My Items', 'Auctions Won', 'Past Auctions', 'Contact'];
 
 export default function Navbar() {
   const [isAuthenticated] = useState(!!localStorage.getItem('access_token'));
@@ -73,6 +73,7 @@ export default function Navbar() {
                 const pageRoutes = {
                   Catalogue: '/catalogue',
                   'My Items': '/my-items',
+                  'Auctions Won': '/auctions-won',
                   'Past Auctions': '/past-auctions',
                   Contact: '/contact',
                 };

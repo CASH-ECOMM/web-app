@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 import Catalogue from './pages/Catalogue';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
+import AuctionsWon from './pages/AuctionsWon';
 import Home from './pages/Home';
 
 function App() {
@@ -59,6 +60,10 @@ function App() {
         <Route
           path="/my-items"
           element={isAuthenticated ? <MyItems /> : <Login />}
+        />
+        <Route
+            path="/auctions-won"
+            element={isAuthenticated ? <AuctionsWon /> : <Login />}
         />
         <Route
           path="/past-auctions"
