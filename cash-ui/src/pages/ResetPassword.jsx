@@ -10,13 +10,12 @@ import {
 } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import apiClient from '../api/api';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
 
+  const token = searchParams.get('token');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -26,20 +25,39 @@ export default function ResetPassword() {
     setError('');
     setSuccess('');
 
-    localStorage.setItem('access_token', token); // Temporarily store token as access_token
-
     try {
-      const data = await apiClient.post('/users/reset-password', {
-        token,
-        newPassword,
+      const res = await fetch('/api/users/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          newPassword,
+        }),
       });
-      localStorage.removeItem('access_token'); // Remove the temporary token
-      setSuccess(data.message || 'Your password has been reset successfully!');
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Password reset failed.');
+        return;
+      }
+
+      setSuccess('Password reset successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Password reset failed');
+      setError('Server error. Please try again.');
     }
   };
+
+  if (!token) {
+    return (
+      <Container maxWidth="xs">
+        <Alert severity="error" sx={{ mt: 5 }}>
+          Invalid or missing token.
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xs">
@@ -54,6 +72,7 @@ export default function ResetPassword() {
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockResetIcon />
         </Avatar>
+
         <Typography component="h1" variant="h5">
           Reset Password
         </Typography>
@@ -63,6 +82,7 @@ export default function ResetPassword() {
             {error}
           </Alert>
         )}
+
         {success && (
           <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
             {success}
@@ -75,14 +95,15 @@ export default function ResetPassword() {
           sx={{ mt: 3, width: '100%' }}
         >
           <TextField
-            margin="normal"
-            fullWidth
             required
+            fullWidth
             label="New Password"
             type="password"
+            margin="normal"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
+
           <Button fullWidth variant="contained" type="submit" sx={{ mt: 3 }}>
             Reset Password
           </Button>
