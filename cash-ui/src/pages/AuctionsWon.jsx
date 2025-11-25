@@ -39,13 +39,14 @@ const AuctionsWon = () => {
             sx={{
                 // minHeight: '100vh',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                boxSizing: 'border-box',
+                padding: '24px',
+                justifyContent: 'center'
             }}
         >
             <Stack
                 spacing={3}
-                alignItems="center"
+                width="100%"
             >
                 {loading ? (
                     <Typography>Loading...</Typography>
@@ -62,7 +63,7 @@ const AuctionsWon = () => {
                                 border: '1px solid #e0e0e0',
                                 p: 2,
                                 borderRadius: 2,
-                                backgroundColor: '#fafafa',
+                                backgroundColor: '#000000',
                             }}
                         >
                             <Typography sx={{ width: 80 }}>#{item.catalogueId}</Typography>
