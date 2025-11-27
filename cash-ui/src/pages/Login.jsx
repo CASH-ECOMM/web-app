@@ -49,7 +49,10 @@ export default function Login() {
       // Save access_token for other pages to detect login
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
-
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('email', data.email);
+      localStorage.setItem('firstName', data.firstName);
+      localStorage.setItem('lastName', data.lastName);
       navigate('/catalogue');
     } catch (err) {
       console.error(err);
