@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound';
 import Catalogue from './pages/Catalogue';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
+import ChatPopup from './components/ChatPopup';
 
 function App() {
   const [isAuthenticated] = useState(!!localStorage.getItem('access_token'));
@@ -17,6 +18,7 @@ function App() {
   return (
     <Router>
       <Navbar />
+      <ChatPopup />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
