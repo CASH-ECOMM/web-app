@@ -45,10 +45,12 @@ export default function ChatPopup() {
             borderColor: 'divider',
             boxShadow: 6,
             borderRadius: 3,
-            width: 350,
-            height: 500,
+            width: 500,
+            height: 600,
             zIndex: 9999,
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <Chatbot />

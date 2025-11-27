@@ -7,11 +7,13 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 function Chatbot() {
+  const userName = localStorage.getItem('firstName') || 'there';
+
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useImmer([
     {
       role: 'assistant',
-      content: 'Hey, ',
+      content: `Hey, ${userName}! How can I assist you today?`,
     },
   ]);
   const [newMessage, setNewMessage] = useState('');
@@ -33,9 +35,9 @@ function Chatbot() {
     let chatIdOrNew = chatId;
     try {
       if (!chatId) {
-        const { id } = await createChat();
-        setChatId(id);
-        chatIdOrNew = id;
+        const { chat_id } = await createChat();
+        setChatId(chat_id);
+        chatIdOrNew = chat_id;
       }
 
       const response = await sendChatMessage(chatIdOrNew, trimmedMessage);

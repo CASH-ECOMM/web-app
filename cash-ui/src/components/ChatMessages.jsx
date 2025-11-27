@@ -1,26 +1,33 @@
 import Markdown from 'react-markdown';
-import useAutoScroll from '../hooks/useAutoScroll';
-import Spinner from './Spinner';
 import WarningIcon from '@mui/icons-material/Warning';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { useEffect, useRef } from 'react';
 
-const USER_BUBBLE_COLOR = '#007aff';
-const ASSISTANT_BUBBLE_COLOR = '#8f8f8fff';
+const ASSISTANT_BUBBLE_COLOR = '#1976d2';
+const USER_BUBBLE_COLOR = '#dededeff';
 
 function ChatMessages({ messages, isLoading }) {
-  const scrollContentRef = useAutoScroll(isLoading);
+  const scrollRef = useRef(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   return (
     <Box
-      ref={scrollContentRef}
+      ref={scrollRef}
       sx={{
         flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        pr: 1,
+        overflowY: 'auto',
+        height: '100%',
       }}
     >
       {messages.map(({ role, content, loading, error }, idx) => {
@@ -29,6 +36,7 @@ function ChatMessages({ messages, isLoading }) {
           <Box
             key={idx}
             sx={{
+              px: 2,
               display: 'flex',
               justifyContent: isUser ? 'flex-end' : 'flex-start',
             }}
@@ -36,24 +44,33 @@ function ChatMessages({ messages, isLoading }) {
             <Paper
               elevation={0}
               sx={{
-                px: 2,
-                py: 1.5,
-                maxWidth: '80%',
+                px: 1.5,
+                maxWidth: '85%',
                 bgcolor: isUser ? USER_BUBBLE_COLOR : ASSISTANT_BUBBLE_COLOR,
-                color: isUser ? 'common.white' : 'text.primary',
+                color: isUser ? 'text.primary' : 'common.white',
                 borderRadius: isUser
-                  ? '18px 18px 4px 18px'
-                  : '18px 18px 18px 4px',
-                boxShadow: isUser ? 3 : 1,
+                  ? '18px 18px 2px 18px'
+                  : '18px 18px 18px 2px',
               }}
             >
               <Box>
                 {loading && !content ? (
-                  <Spinner />
+                  <Typography
+                    sx={{
+                      fontStyle: 'italic',
+                      color: 'inherit',
+                      py: 1.5,
+                    }}
+                  >
+                    Thinking...
+                  </Typography>
                 ) : role === 'assistant' ? (
                   <Markdown>{content}</Markdown>
                 ) : (
-                  <Typography component="div" sx={{ whiteSpace: 'pre-line' }}>
+                  <Typography
+                    component="div"
+                    sx={{ whiteSpace: 'pre-line', marginY: 1.6 }}
+                  >
                     {content}
                   </Typography>
                 )}
@@ -65,11 +82,14 @@ function ChatMessages({ messages, isLoading }) {
                     alignItems: 'center',
                     gap: 0.5,
                     color: 'error.light',
-                    mt: 1,
                   }}
                 >
                   <WarningIcon sx={{ width: 18, height: 18 }} />
-                  <Typography variant="caption" color="inherit">
+                  <Typography
+                    color="inherit"
+                    component="div"
+                    sx={{ whiteSpace: 'pre-line', marginY: 1.6 }}
+                  >
                     Error generating the response
                   </Typography>
                 </Box>

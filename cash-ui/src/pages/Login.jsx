@@ -49,10 +49,19 @@ export default function Login() {
       // Save access_token for other pages to detect login
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('email', data.email);
-      localStorage.setItem('firstName', data.firstName);
-      localStorage.setItem('lastName', data.lastName);
+
+      const user = await fetch(`/api/users/${data.userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data.jwt}`,
+        },
+      });
+      const userData = await user.json();
+      localStorage.setItem('username', userData.username);
+      localStorage.setItem('email', userData.email);
+      localStorage.setItem('firstName', userData.firstName);
+      localStorage.setItem('lastName', userData.lastName);
       navigate('/catalogue');
     } catch (err) {
       console.error(err);

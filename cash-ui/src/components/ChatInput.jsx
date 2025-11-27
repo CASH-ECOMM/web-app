@@ -31,7 +31,7 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          borderRadius: 999,
+          // borderRadius: 999,
           px: 2,
           py: 1,
           gap: 1,
@@ -41,10 +41,11 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
           multiline
           minRows={1}
           maxRows={6}
-          placeholder="Type a message"
+          placeholder="Type your message"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={handleKeyDown}
+          inputProps={{ maxLength: 500 }}
           sx={{
             flexGrow: 1,
             fontSize: 16,

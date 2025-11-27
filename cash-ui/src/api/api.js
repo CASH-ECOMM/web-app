@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/';
+const AI_BASE_URL =
+  import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api';
 
 // Create an axios instance
 const apiClient = axios.create({
@@ -38,6 +40,14 @@ apiClient.interceptors.response.use(
   }
 );
 
+// AI Chat API functions (use AI_BASE_URL)
+const aiClient = axios.create({
+  baseURL: AI_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 async function buildUserChatRequest(overrides) {
   if (overrides) {
     return overrides;
@@ -64,17 +74,17 @@ async function buildUserChatRequest(overrides) {
 
 export async function createChat(userContextOverrides) {
   const payload = await buildUserChatRequest(userContextOverrides);
-  const { data } = await apiClient.post('/chats', payload);
+  const { data } = await aiClient.post('/chats', payload);
   return data;
 }
 
 export async function getChatHistory(chatId) {
-  const { data } = await apiClient.get(`/chats/${chatId}`);
+  const { data } = await aiClient.get(`/chats/${chatId}`);
   return data;
 }
 
 export async function sendChatMessage(chatId, message) {
-  const { data } = await apiClient.post(`/chats/${chatId}/message`, {
+  const { data } = await aiClient.post(`/chats/${chatId}/message`, {
     message,
   });
   return data;
