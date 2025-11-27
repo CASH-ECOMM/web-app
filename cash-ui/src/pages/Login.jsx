@@ -46,9 +46,9 @@ export default function Login() {
         return;
       }
 
-      // Save access_token for other pages to detect login
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
+      window.dispatchEvent(new Event('auth-changed'));
 
       navigate('/catalogue');
     } catch (err) {
@@ -107,7 +107,6 @@ export default function Login() {
             Login
           </Button>
 
-          {/* Forgot password link */}
           <Button
             fullWidth
             sx={{ mt: 2 }}
@@ -116,7 +115,6 @@ export default function Login() {
             Forgot password?
           </Button>
 
-          {/* Create account button */}
           <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/signup')}>
             Create an account
           </Button>
