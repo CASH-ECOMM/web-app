@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 import Catalogue from './pages/Catalogue';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
+import Home from './pages/Home';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -36,7 +37,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Navigate to="/signup" replace />} />
+        <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
