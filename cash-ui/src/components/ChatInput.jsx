@@ -21,9 +21,7 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
   };
 
   return (
-    <Box
-      sx={{ position: 'sticky', bottom: 0, bgcolor: 'background.paper', pt: 2 }}
-    >
+    <Box sx={{ position: 'sticky', bottom: 0, bgcolor: 'background.paper' }}>
       <Paper
         component="form"
         onSubmit={handleSubmit}

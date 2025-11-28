@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useAuth, AuthProvider } from './auth/AuthContext';
 
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -20,58 +20,38 @@ import PastAuctions from './pages/PastAuctions';
 import ChatPopup from './components/ChatPopup';
 import Home from './pages/Home';
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem('access_token')
-  );
-
-  useEffect(() => {
-    const handleAuthChange = () => {
-      setIsAuthenticated(!!localStorage.getItem('access_token'));
-    };
-
-    window.addEventListener('auth-changed', handleAuthChange);
-    return () => window.removeEventListener('auth-changed', handleAuthChange);
-  }, []);
-
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
   return (
     <Router>
       <Navbar />
+      {isAuthenticated && <ChatPopup />}
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         {isAuthenticated && (
           <>
-            <ChatPopup />
-            <Route
-              path="/upload-item"
-              element={isAuthenticated ? <ItemUpload /> : <Login />}
-            />
-            <Route
-              path="/profile"
-              element={isAuthenticated ? <Profile /> : <Login />}
-            />
-            <Route
-              path="/catalogue"
-              element={isAuthenticated ? <Catalogue /> : <Login />}
-            />
-            <Route
-              path="/my-items"
-              element={isAuthenticated ? <MyItems /> : <Login />}
-            />
-            <Route
-              path="/past-auctions"
-              element={isAuthenticated ? <PastAuctions /> : <Login />}
-            />
+            <Route path="/upload-item" element={<ItemUpload />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/catalogue" element={<Catalogue />} />
+            <Route path="/my-items" element={<MyItems />} />
+            <Route path="/past-auctions" element={<PastAuctions />} />
           </>
         )}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 

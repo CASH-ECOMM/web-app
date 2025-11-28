@@ -67,8 +67,8 @@ function Chatbot() {
         flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        pt: 2,
+        // gap: 2,
+        // pt: 2,
         height: '100%',
       }}
     >

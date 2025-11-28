@@ -5,8 +5,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useEffect, useRef } from 'react';
 
-const ASSISTANT_BUBBLE_COLOR = '#1976d2';
-const USER_BUBBLE_COLOR = '#dededeff';
+const USER_BUBBLE_COLOR = '#3c80daff';
+const ASSISTANT_BUBBLE_COLOR = '#E9E9EB';
 
 function ChatMessages({ messages, isLoading }) {
   const scrollRef = useRef(null);
@@ -25,7 +25,7 @@ function ChatMessages({ messages, isLoading }) {
         flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        // gap: 2,
         overflowY: 'auto',
         height: '100%',
       }}
@@ -36,6 +36,8 @@ function ChatMessages({ messages, isLoading }) {
           <Box
             key={idx}
             sx={{
+              pt: 2,
+              pb: 1,
               px: 2,
               display: 'flex',
               justifyContent: isUser ? 'flex-end' : 'flex-start',
@@ -47,7 +49,7 @@ function ChatMessages({ messages, isLoading }) {
                 px: 1.5,
                 maxWidth: '85%',
                 bgcolor: isUser ? USER_BUBBLE_COLOR : ASSISTANT_BUBBLE_COLOR,
-                color: isUser ? 'text.primary' : 'common.white',
+                color: isUser ? 'common.white' : 'text.primary',
                 borderRadius: isUser
                   ? '18px 18px 2px 18px'
                   : '18px 18px 18px 2px',

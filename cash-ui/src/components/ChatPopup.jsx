@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Chatbot from './Chatbot';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
@@ -53,7 +54,29 @@ export default function ChatPopup() {
             flexDirection: 'column',
           }}
         >
-          <Chatbot />
+          <Typography
+            variant="h6"
+            align="center"
+            sx={{
+              // mb: 1,
+              backgroundColor: '#1976d2',
+              color: 'white',
+              py: 1,
+            }}
+          >
+            CashBot
+          </Typography>
+          <Box
+            sx={{
+              flexGrow: 1,
+              minHeight: 0,
+              // overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Chatbot />
+          </Box>
         </Box>
       )}
     </>

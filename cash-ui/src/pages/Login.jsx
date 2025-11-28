@@ -9,12 +9,13 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../auth/AuthContext';
 
 export default function Login() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const { login } = useAuth();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,7 +49,6 @@ export default function Login() {
 
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
-      window.dispatchEvent(new Event('auth-changed'));
 
       const user = await fetch(`/api/users/${data.userId}`, {
         method: 'GET',
@@ -62,7 +62,8 @@ export default function Login() {
       localStorage.setItem('email', userData.email);
       localStorage.setItem('firstName', userData.firstName);
       localStorage.setItem('lastName', userData.lastName);
-      navigate('/catalogue');
+      login();
+      window.location.href = '/catalogue';
     } catch (err) {
       console.error(err);
       setError('Could not connect to the server. Please try again.');
@@ -122,12 +123,13 @@ export default function Login() {
           <Button
             fullWidth
             sx={{ mt: 2 }}
-            onClick={() => navigate('/forgot-password')}
+            href="/forgot-password"
+            // onClick={() => navigate('/forgot-password')}
           >
             Forgot password?
           </Button>
 
-          <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/signup')}>
+          <Button fullWidth sx={{ mt: 1 }} href="/signup">
             Create an account
           </Button>
         </Box>

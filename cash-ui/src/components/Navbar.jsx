@@ -16,12 +16,13 @@ import Logout from '@mui/icons-material/Logout';
 import Login from '@mui/icons-material/Login';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { logoutUser } from '../services/auth';
+
+import { useAuth } from '../auth/AuthContext';
 
 const pages = ['Catalogue', 'My Items', 'Past Auctions', 'Contact'];
 
 export default function Navbar() {
-  const [isAuthenticated] = useState(!!localStorage.getItem('access_token'));
+  const { isAuthenticated, logout } = useAuth();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -38,9 +39,7 @@ export default function Navbar() {
     window.location.href = '/profile';
   };
   const handleLogout = async () => {
-    const jwt = localStorage.getItem('access_token');
-    const userId = localStorage.getItem('userId');
-    await logoutUser(jwt, userId);
+    await logout();
     window.location.href = '/login';
   };
   return (
@@ -104,6 +103,7 @@ export default function Navbar() {
               </Tooltip>
             </Box>
             <Menu
+              disableScrollLock
               anchorEl={anchorEl}
               id="account-menu"
               open={open}

@@ -8,6 +8,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import { useAuth } from '../auth/AuthContext';
 
 const rotatingPhrases = [
   'Cool Auctions Start Here',
@@ -20,6 +21,7 @@ const rotatingPhrases = [
 export default function HomePage() {
   // Rotating text state
   const [phraseIndex, setPhraseIndex] = React.useState(0);
+  const { isAuthenticated } = useAuth();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -72,32 +74,50 @@ export default function HomePage() {
             you're signed in.
           </Typography>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            href="/login"
-            sx={{ borderRadius: 3, px: 4, py: 2 }}
+        {isAuthenticated ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
-            Log In
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="large"
-            href="/signup"
-            sx={{ borderRadius: 3, px: 4, py: 2 }}
+            <Button
+              variant="contained"
+              color="primary"
+              size="medium"
+              href="/login"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Post an Item
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
-            Sign Up
-          </Button>
-        </motion.div>
+            <Button
+              variant="contained"
+              color="primary"
+              size="medium"
+              href="/login"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Log In
+            </Button>
+            <Button
+              variant="outlined"
+              color="inherit"
+              size="medium"
+              href="/signup"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Sign Up
+            </Button>
+          </motion.div>
+        )}
       </Box>
 
       {/* Feature Cards with AI box */}
