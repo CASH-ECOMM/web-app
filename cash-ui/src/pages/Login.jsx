@@ -11,6 +11,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 import { useAuth } from '../auth/AuthContext';
+import apiClient from '../api/api';
 
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -25,22 +26,11 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await fetch('/api/users/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-        }),
-        credentials: 'include',
+      const res = await apiClient.post('/users/signin', {
+        username: form.username,
+        password: form.password,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Invalid username or password.');
-        return;
-      }
+      const data = res.data;
 
       if (!data.jwt) {
         setError('Login failed. No access token returned.');
@@ -50,14 +40,8 @@ export default function Login() {
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
 
-      const user = await fetch(`/api/users/${data.userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${data.jwt}`,
-        },
-      });
-      const userData = await user.json();
+      const userRes = await apiClient.get(`/users/${data.userId}`);
+      const userData = userRes.data;
       localStorage.setItem('username', userData.username);
       localStorage.setItem('email', userData.email);
       localStorage.setItem('firstName', userData.firstName);
