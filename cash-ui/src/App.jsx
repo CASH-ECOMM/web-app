@@ -15,6 +15,7 @@ import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Catalogue from './pages/Catalogue';
+import CatalogueItemDetail from './pages/CatalogueItemDetail';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
 import Home from './pages/Home';
