@@ -22,6 +22,7 @@ import {
   Stack,
 } from "@mui/material";
 import { fetchAllItems, searchItems } from "../services/catalogue";
+import { getAuctionStatus, placeBid } from "../services/auction";
 
 const ROWS_PER_PAGE_DEFAULT = 10;
 
@@ -71,16 +72,55 @@ function sortItems(items, sortOption) {
   }
 }
 
+// if there is a latest highest bid and remaining time, update the item
+async function enrichItemsWithAuctionStatus(items) {
+  const updated = await Promise.all(
+    items.map(async (item) => {
+      try {
+        const status = await getAuctionStatus(item.id);
+        if (!status) return item;
+
+        const newPrice =
+          status.currentHighestBid != null
+            ? Number(status.currentHighestBid)
+            : item.currentPrice;
+
+        const newRemaining =
+          status.remainingTimeSeconds ??
+          status.remainingTime ??
+          status.remainingSeconds ??
+          item.remainingTimeSeconds;
+
+        return {
+          ...item,
+          currentPrice: newPrice,
+          remainingTimeSeconds: newRemaining,
+        };
+      } catch {
+        // If no active auction or error, just return original item
+        return item;
+      }
+    })
+  );
+  return updated;
+}
+
 const Catalogue = () => {
   // STATE
-  const [itemsRaw, setItemsRaw] = useState([]);          // all items from backend
-  const [searchTerm, setSearchTerm] = useState("");      // search input text
+  const [itemsRaw, setItemsRaw] = useState([]); // all items from backend
+  const [searchTerm, setSearchTerm] = useState(""); // search input text
   const [sortOption, setSortOption] = useState("timeAsc");
-  const [page, setPage] = useState(0);                   // 0-based for TablePagination
+  const [page, setPage] = useState(0); // 0-based for TablePagination
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_DEFAULT);
-  const [selectedIds, setSelectedIds] = useState([]);    // selected item IDs (checkboxes)
-  const [loading, setLoading] = useState(false);         // spinner flag
-  const [error, setError] = useState("");                // error message
+  const [selectedIds, setSelectedIds] = useState([]); // selected item IDs (checkboxes)
+  const [loading, setLoading] = useState(false); // spinner flag
+  const [error, setError] = useState(""); // error message
+
+  // inline bidding state (per item)
+  const [bidValues, setBidValues] = useState({}); // { [itemId]: "123.45" }
+  const [bidErrors, setBidErrors] = useState({}); // { [itemId]: "Error message" }
+  const [bidMessages, setBidMessages] = useState({}); // { [itemId]: "Success message" }
+  const [biddingIds, setBiddingIds] = useState([]); // ids currently placing bid
 
   // INITIAL LOAD
   useEffect(() => {
@@ -89,7 +129,10 @@ const Catalogue = () => {
       setError("");
       try {
         const data = await fetchAllItems();
-        setItemsRaw(Array.isArray(data) ? data : []);
+        let items = Array.isArray(data) ? data : [];
+        // overlay auction currentHighestBid + remaining time
+        items = await enrichItemsWithAuctionStatus(items);
+        setItemsRaw(items);
       } catch (err) {
         console.error("Error loading catalogue items:", err);
         const message =
@@ -110,19 +153,22 @@ const Catalogue = () => {
 
   // Called when the user submits the search form.
   const handleSearchSubmit = async (e) => {
-    e.preventDefault();       // Prevent full page reload
-    setPage(0);               // Reset to first page on new search
+    e.preventDefault(); // Prevent full page reload
+    setPage(0); // Reset to first page on new search
     setLoading(true);
     setError("");
 
     try {
+      let data;
       if (!searchTerm.trim()) {
-        const data = await fetchAllItems();
-        setItemsRaw(Array.isArray(data) ? data : []);
+        data = await fetchAllItems();
       } else {
-        const data = await searchItems(searchTerm.trim());
-        setItemsRaw(Array.isArray(data) ? data : []);
+        data = await searchItems(searchTerm.trim());
       }
+      let items = Array.isArray(data) ? data : [];
+      // overlay auction data after search
+      items = await enrichItemsWithAuctionStatus(items);
+      setItemsRaw(items);
     } catch (err) {
       console.error("Error searching items:", err);
       const message =
@@ -137,8 +183,8 @@ const Catalogue = () => {
   };
 
   const handleSortChange = (e) => {
-    setSortOption(e.target.value); // update sort option
-    setPage(0);                    // reset to first page
+    setSortOption(e.target.value); // update sort option (including "aliveOnly")
+    setPage(0); // reset to first page
   };
 
   // Connected to TablePagination, updates page when user clicks next/prev.
@@ -151,37 +197,152 @@ const Catalogue = () => {
     setPage(0);
   };
 
-  // Are all items selected?
-  const isAllSelected =
-    itemsRaw.length > 0 && selectedIds.length === itemsRaw.length;
-
-  // Handle select-all checkbox click
-  const handleSelectAllClick = (e) => {
-    if (e.target.checked) {
-      setSelectedIds(itemsRaw.map((item) => item.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
   const handleRowCheckboxClick = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  // DERIVED DATA
+  // inline bid value change
+  const handleBidValueChange = (itemId, value) => {
+    setBidValues((prev) => ({ ...prev, [itemId]: value }));
+    setBidErrors((prev) => ({ ...prev, [itemId]: "" }));
+    setBidMessages((prev) => ({ ...prev, [itemId]: "" }));
+  };
 
-  // Use useMemo to avoid re-sorting on every render
+  // place bid from catalogue row
+  const handleRowPlaceBid = async (item) => {
+    const itemId = item.id;
+    const currentPrice = Number(item.currentPrice ?? item.startingPrice ?? 0);
+    const amountStr = bidValues[itemId];
+    const amount = Number(amountStr);
+
+    // clear previous messages for this item
+    setBidErrors((prev) => ({ ...prev, [itemId]: "" }));
+    setBidMessages((prev) => ({ ...prev, [itemId]: "" }));
+
+    // basic validation
+    if (!amountStr || Number.isNaN(amount) || amount <= 0) {
+      setBidErrors((prev) => ({
+        ...prev,
+        [itemId]: "Please enter a valid bid amount.",
+      }));
+      return;
+    }
+
+    if (amount <= currentPrice) {
+      setBidErrors((prev) => ({
+        ...prev,
+        [itemId]: `Bid must be higher than current bid ($${currentPrice.toFixed(
+          2
+        )}).`,
+      }));
+      return;
+    }
+
+    if (item.remainingTimeSeconds != null && item.remainingTimeSeconds <= 0) {
+      setBidErrors((prev) => ({
+        ...prev,
+        [itemId]: "This auction has already ended.",
+      }));
+      return;
+    }
+
+    // mark this row as "bidding"
+    setBiddingIds((prev) => [...prev, itemId]);
+    try {
+      const response = await placeBid(itemId, amount);
+
+      if (response?.success === false) {
+        setBidErrors((prev) => ({
+          ...prev,
+          [itemId]: response.message || "Bid was not accepted.",
+        }));
+      } else {
+        setBidMessages((prev) => ({
+          ...prev,
+          [itemId]: response?.message || "Bid placed successfully.",
+        }));
+
+        // refresh auction status to update current price & remaining time
+        try {
+          const status = await getAuctionStatus(itemId);
+          const newPrice =
+            status.currentHighestBid != null
+              ? Number(status.currentHighestBid)
+              : currentPrice;
+          const newRemaining =
+            status.remainingTimeSeconds ??
+            status.remainingTime ??
+            status.remainingSeconds ??
+            item.remainingTimeSeconds;
+
+          setItemsRaw((prevItems) =>
+            prevItems.map((it) =>
+              it.id === itemId
+                ? {
+                  ...it,
+                  currentPrice: newPrice,
+                  remainingTimeSeconds: newRemaining,
+                }
+                : it
+            )
+          );
+        } catch (statusErr) {
+          console.error("Error refreshing auction status:", statusErr);
+        }
+      }
+    } catch (err) {
+      console.error("Error placing bid from catalogue:", err);
+      setBidErrors((prev) => ({
+        ...prev,
+        [itemId]: "Failed to place bid. Please try again.",
+      }));
+    } finally {
+      setBiddingIds((prev) => prev.filter((x) => x !== itemId));
+    }
+  };
+
+  // DERIVED DATA WITH "ALIVE ONLY" OPTION
+
+  // Filter list if "aliveOnly" is selected
+  const filteredItems = useMemo(() => {
+    if (sortOption === "aliveOnly") {
+      return itemsRaw.filter(
+        (item) =>
+          item.remainingTimeSeconds == null || item.remainingTimeSeconds > 0
+      );
+    }
+    return itemsRaw;
+  }, [itemsRaw, sortOption]);
+
+  // For "aliveOnly"
+  const effectiveSortOption =
+    sortOption === "aliveOnly" ? "timeAsc" : sortOption;
+
+  // Sort visible items
   const sortedItems = useMemo(
-    () => sortItems(itemsRaw, sortOption),
-    [itemsRaw, sortOption]
+    () => sortItems(filteredItems, effectiveSortOption),
+    [filteredItems, effectiveSortOption]
   );
 
+  // Pagination over sorted items
   const paginatedItems = useMemo(() => {
     const start = page * rowsPerPage;
     return sortedItems.slice(start, start + rowsPerPage);
   }, [sortedItems, page, rowsPerPage]);
+
+  // Selection is based on visible items (filtered)
+  const isAllSelected =
+    filteredItems.length > 0 && selectedIds.length === filteredItems.length;
+
+  const handleSelectAllClick = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(filteredItems.map((item) => item.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
 
   // RENDER
 
@@ -213,12 +374,12 @@ const Catalogue = () => {
 
         <Box flexGrow={1} />
 
-        <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel id="sort-by-label">Sort by</InputLabel>
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="sort-by-label">Sort / Filter</InputLabel>
           <Select
             labelId="sort-by-label"
             value={sortOption}
-            label="Sort by"
+            label="Sort / Filter"
             onChange={handleSortChange}
           >
             <MenuItem value="timeAsc">Time left (ascending)</MenuItem>
@@ -226,6 +387,9 @@ const Catalogue = () => {
             <MenuItem value="priceAsc">Price (low to high)</MenuItem>
             <MenuItem value="priceDesc">Price (high to low)</MenuItem>
             <MenuItem value="titleAsc">Title (A–Z)</MenuItem>
+            <MenuItem value="aliveOnly">
+              Alive auctions only (hide ended)
+            </MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -242,11 +406,11 @@ const Catalogue = () => {
         </Typography>
       )}
 
-      {!loading && !error && itemsRaw.length === 0 && (
+      {!loading && !error && sortedItems.length === 0 && (
         <Typography>No items found.</Typography>
       )}
 
-      {!loading && !error && itemsRaw.length > 0 && (
+      {!loading && !error && sortedItems.length > 0 && (
         <Paper>
           <TableContainer>
             <Table>
@@ -256,7 +420,7 @@ const Catalogue = () => {
                     <Checkbox
                       indeterminate={
                         selectedIds.length > 0 &&
-                        selectedIds.length < itemsRaw.length
+                        selectedIds.length < filteredItems.length
                       }
                       checked={isAllSelected}
                       onChange={handleSelectAllClick}
@@ -265,42 +429,97 @@ const Catalogue = () => {
                   <TableCell>Title</TableCell>
                   <TableCell>Current bid</TableCell>
                   <TableCell>Time left</TableCell>
+                  <TableCell>Bid</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedItems.map((item) => (
-                  <TableRow
-                    key={item.id}
-                    hover
-                    role="checkbox"
-                    aria-checked={selectedIds.includes(item.id)}
-                    selected={selectedIds.includes(item.id)}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedIds.includes(item.id)}
-                        onChange={() => handleRowCheckboxClick(item.id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        to={`/catalogue/${item.id}`}
-                        style={{ textDecoration: "none" }}
-                      >
-                        <Typography color="primary">{item.title}</Typography>
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      $
-                      {Number(
-                        item.currentPrice ?? item.startingPrice ?? 0
-                      ).toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      {formatSecondsToHHMMSS(item.remainingTimeSeconds)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {paginatedItems.map((item) => {
+                  const itemId = item.id;
+                  const bidValue = bidValues[itemId] ?? "";
+                  const bidError = bidErrors[itemId];
+                  const bidMessage = bidMessages[itemId];
+                  const isBidding = biddingIds.includes(itemId);
+                  const ended =
+                    item.remainingTimeSeconds != null &&
+                    item.remainingTimeSeconds <= 0;
+
+                  return (
+                    <TableRow
+                      key={item.id}
+                      hover
+                      role="checkbox"
+                      aria-checked={selectedIds.includes(item.id)}
+                      selected={selectedIds.includes(item.id)}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedIds.includes(item.id)}
+                          onChange={() => handleRowCheckboxClick(item.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          to={`/catalogue/${item.id}`}
+                          style={{ textDecoration: "none" }}
+                        >
+                          <Typography color="primary">{item.title}</Typography>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        $
+                        {Number(
+                          item.currentPrice ?? item.startingPrice ?? 0
+                        ).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        {formatSecondsToHHMMSS(item.remainingTimeSeconds)}
+                      </TableCell>
+                      <TableCell>
+                        <Stack spacing={0.5}>
+                          <Stack direction="row" spacing={1}>
+                            <TextField
+                              size="small"
+                              type="number"
+                              inputProps={{ step: "0.01", min: 0 }}
+                              value={bidValue}
+                              onChange={(e) =>
+                                handleBidValueChange(itemId, e.target.value)
+                              }
+                              disabled={ended || isBidding}
+                              placeholder="Bid"
+                            />
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => handleRowPlaceBid(item)}
+                              disabled={ended || isBidding}
+                            >
+                              {isBidding ? "..." : "Bid"}
+                            </Button>
+                          </Stack>
+                          {bidError && (
+                            <Typography
+                              variant="caption"
+                              color="error"
+                              sx={{ maxWidth: 220 }}
+                            >
+                              {bidError}
+                            </Typography>
+                          )}
+                          {bidMessage && (
+                            <Typography
+                              variant="caption"
+                              color="success.main"
+                              sx={{ maxWidth: 220 }}
+                            >
+                              {bidMessage}
+                            </Typography>
+                          )}
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
@@ -313,12 +532,12 @@ const Catalogue = () => {
             px={2}
             py={1}
           >
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="sort-by-bottom-label">Sort by</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="sort-by-bottom-label">Sort / Filter</InputLabel>
               <Select
                 labelId="sort-by-bottom-label"
                 value={sortOption}
-                label="Sort by"
+                label="Sort / Filter"
                 onChange={handleSortChange}
               >
                 <MenuItem value="timeAsc">Time left (ascending)</MenuItem>
@@ -326,6 +545,9 @@ const Catalogue = () => {
                 <MenuItem value="priceAsc">Price (low to high)</MenuItem>
                 <MenuItem value="priceDesc">Price (high to low)</MenuItem>
                 <MenuItem value="titleAsc">Title (A–Z)</MenuItem>
+                <MenuItem value="aliveOnly">
+                  Alive auctions only
+                </MenuItem>
               </Select>
             </FormControl>
 

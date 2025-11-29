@@ -93,7 +93,7 @@ export const fetchItem = async (id) => {
   return normalizeItem(res.data);
 };
 
-// POST /catalogue/items → create new catalogue item (optional, for your upload form)
+// POST /catalogue/items → create new catalogue item (for upload form, if needed)
 export const createItem = async (payload) => {
   // Expect payload with keys: title, description, startingPrice, durationHours, sellerId, etc.
   const res = await apiClient.post("/catalogue/items", payload);
