@@ -374,6 +374,7 @@ const Catalogue = () => {
 
         <Box flexGrow={1} />
 
+        {/* Top sort / filter */}
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <InputLabel id="sort-by-label">Sort / Filter</InputLabel>
           <Select
@@ -524,14 +525,15 @@ const Catalogue = () => {
             </Table>
           </TableContainer>
 
-          {/* Footer: sort + pagination */}
+          {/* Footer: pagination only (sort/filter removed) */}
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="space-between"
+            justifyContent="flex-end"
             px={2}
             py={1}
           >
+            {/* Bottom sort is commented out to have it only on top.
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <InputLabel id="sort-by-bottom-label">Sort / Filter</InputLabel>
               <Select
@@ -550,6 +552,7 @@ const Catalogue = () => {
                 </MenuItem>
               </Select>
             </FormControl>
+            */}
 
             <Stack direction="row" spacing={2} alignItems="center">
               <TablePagination
