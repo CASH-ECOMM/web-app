@@ -19,7 +19,7 @@ import {
   getAuctionWinner,
 } from "../services/auction";
 
-// Format seconds into "HH:MM:SS" or "Ended"
+// Format seconds into "HH:MM:SS"
 function formatSecondsToHHMMSS(seconds) {
   if (seconds == null || seconds <= 0) return "00:00:00";
 
@@ -31,6 +31,7 @@ function formatSecondsToHHMMSS(seconds) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
 }
+
 const CatalogueItemDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -59,6 +60,18 @@ const CatalogueItemDetail = () => {
       try {
         const data = await fetchItem(catalogueId);
         setItem(data);
+
+        // Initialise remainingTime from item (defensive: camelCase + snake_case)
+        const initialRt =
+          data.remainingTimeSeconds ??
+          data.remaining_time_seconds ?? // <-- added
+          data.remainingTime ??
+          data.remainingSeconds ??
+          null;
+
+        if (initialRt != null) {
+          setRemainingTime(initialRt);
+        }
       } catch (err) {
         console.error(err);
         setError("Item not found or failed to load.");
@@ -86,19 +99,28 @@ const CatalogueItemDetail = () => {
         // remainingTime might come under different keys, so we are defensive
         const rt =
           s.remainingTimeSeconds ??
+          s.remaining_time_seconds ??
           s.remainingTime ??
           s.remainingSeconds ??
-          null;
-        setRemainingTime(rt);
+          item?.remainingTimeSeconds ??
+          item?.remaining_time_seconds ??
+          remainingTime; // fall back to whatever we already had
+
+        if (rt != null) {
+          setRemainingTime(rt);
+        }
 
         // Initialize bid amount a little higher than current highest bid or starting price
         let base = null;
         if (s.currentHighestBid != null) {
           base = Number(s.currentHighestBid);
-        } else if (item?.currentPrice != null) {
-          base = Number(item.currentPrice);
-        } else if (item?.startingPrice != null) {
-          base = Number(item.startingPrice);
+        } else if (item?.currentPrice != null || item?.current_price != null) {
+          base = Number(item.currentPrice ?? item.current_price);
+        } else if (
+          item?.startingPrice != null ||
+          item?.starting_price != null
+        ) {
+          base = Number(item.startingPrice ?? item.starting_price);
         }
 
         if (base != null && !Number.isNaN(base)) {
@@ -106,7 +128,16 @@ const CatalogueItemDetail = () => {
         }
       } catch (err) {
         console.error(err);
-        // It's okay if there's no active auction yet; just don't set an error here
+        // No active auction / error: fall back to item's remaining time if we have it
+        if (
+          (item?.remainingTimeSeconds != null ||
+            item?.remaining_time_seconds != null) &&
+          remainingTime == null
+        ) {
+          setRemainingTime(
+            item.remainingTimeSeconds ?? item.remaining_time_seconds
+          );
+        }
       } finally {
         setLoadingStatus(false);
       }
@@ -115,7 +146,7 @@ const CatalogueItemDetail = () => {
     if (!Number.isNaN(catalogueId)) {
       loadStatus();
     }
-  }, [catalogueId, item]);
+  }, [catalogueId, item]); // rerun once item is loaded so we can use its fallback
 
   // COUNTDOWN TIMER
   useEffect(() => {
@@ -159,11 +190,13 @@ const CatalogueItemDetail = () => {
     if (status?.currentHighestBid != null) {
       return Number(status.currentHighestBid);
     }
-    if (item?.currentPrice != null) {
-      return Number(item.currentPrice);
+
+    // Defensive: currentPrice / current_price, startingPrice / starting_price
+    if (item?.currentPrice != null || item?.current_price != null) {
+      return Number(item.currentPrice ?? item.current_price);
     }
-    if (item?.startingPrice != null) {
-      return Number(item.startingPrice);
+    if (item?.startingPrice != null || item?.starting_price != null) {
+      return Number(item.startingPrice ?? item.starting_price);
     }
     return 0;
   }, [status, item]);
@@ -203,7 +236,7 @@ const CatalogueItemDetail = () => {
 
     setPlacingBid(true);
     try {
-      // placeBid should call POST /auctions/{catalogueId}/bid with { bidAmount }
+      // placeBid call
       const response = await placeBid(catalogueId, numericBid);
 
       if (response?.success === false) {
@@ -217,10 +250,13 @@ const CatalogueItemDetail = () => {
 
         const rt =
           s.remainingTimeSeconds ??
+          s.remaining_time_seconds ??
           s.remainingTime ??
           s.remainingSeconds ??
           remainingTime;
-        setRemainingTime(rt);
+        if (rt != null) {
+          setRemainingTime(rt);
+        }
       }
     } catch (err) {
       console.error(err);
