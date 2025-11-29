@@ -28,18 +28,34 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem('access_token')
   );
+  //Theme preference state (light, dark, system)
+  const [themePreference, setThemePreference] = useState(() => {
+    return localStorage.getItem('themePreference') || 'system';
+  });
   // Detect system perferences for dark mode or light mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+  // Resolve the actual theme mode based on user preference and system settings
+  const resolvedMode =
+    themePreference === 'system'
+      ? prefersDarkMode
+        ? 'dark'
+        : 'light'
+      : themePreference;
 
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
-          mode: prefersDarkMode ? 'dark' : 'light',
+          mode: resolvedMode,
         },
       }),
-    [prefersDarkMode]
+    [resolvedMode]
   );
+  // Persist user theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('themePreference', themePreference);
+  }, [themePreference]);
 
   useEffect(() => {
     const handleAuthChange = () => {
@@ -54,7 +70,10 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar />
+        <Navbar
+          themePreference={themePreference}
+          setThemePreference={setThemePreference}
+        />
         <Routes>
           <Route path="/" element={<Home />} />
 
