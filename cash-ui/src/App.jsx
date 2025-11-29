@@ -58,6 +58,10 @@ function App() {
           element={isAuthenticated ? <Catalogue /> : <Login />}
         />
         <Route
+          path="/catalogue/:id"
+          element={isAuthenticated ? <CatalogueItemDetail /> : <Login />}
+        />
+        <Route
           path="/my-items"
           element={isAuthenticated ? <MyItems /> : <Login />}
         />
