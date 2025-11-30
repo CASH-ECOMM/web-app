@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import apiClient from '../api/api';
@@ -7,11 +8,13 @@ import Typography from "@mui/material/Typography";
 
 const AuctionsWon = () => {
 
+    const navigate = useNavigate();
+
     const [wins, setWins] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Get userId and jwt from localStorage (or your auth context)
+    // Get userId from localStorage
     const userId = localStorage.getItem('userId');
 
     useEffect(() => {
@@ -72,7 +75,7 @@ const AuctionsWon = () => {
                             <Button
                                 variant="contained"
                                 size="small"
-                                onClick={() => null}
+                                onClick={() => navigate('/payment', {state: {catalogueId: item.catalogueId}})}
                             >
                                 Pay Now
                             </Button>
