@@ -122,6 +122,12 @@ const Catalogue = () => {
   const [bidMessages, setBidMessages] = useState({}); // { [itemId]: "Success message" }
   const [biddingIds, setBiddingIds] = useState([]); // ids currently placing bid
 
+  // track which item the user currently has an active bid on
+  const [activeBidItemId, setActiveBidItemId] = useState(() => {
+    const stored = localStorage.getItem("activeBidItemId");
+    return stored ? Number(stored) : null;
+  });
+
   // INITIAL LOAD
   useEffect(() => {
     const loadItems = async () => {
@@ -217,6 +223,15 @@ const Catalogue = () => {
     const amountStr = bidValues[itemId];
     const amount = Number(amountStr);
 
+    if (activeBidItemId != null && activeBidItemId !== itemId) {
+      setBidErrors((prev) => ({
+        ...prev,
+        [itemId]:
+          "You already have an active bid on another item. You can only bid on one item at a time.",
+      }));
+      return;
+    }
+
     // clear previous messages for this item
     setBidErrors((prev) => ({ ...prev, [itemId]: "" }));
     setBidMessages((prev) => ({ ...prev, [itemId]: "" }));
@@ -263,6 +278,9 @@ const Catalogue = () => {
           ...prev,
           [itemId]: response?.message || "Bid placed successfully.",
         }));
+        // Mark this item as having an active bid
+        setActiveBidItemId(itemId);
+        localStorage.setItem("activeBidItemId", String(itemId));
 
         // refresh auction status to update current price & remaining time
         try {
@@ -294,9 +312,15 @@ const Catalogue = () => {
       }
     } catch (err) {
       console.error("Error placing bid from catalogue:", err);
+      // Show backend error message
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        err?.message ||
+        "Failed to place bid. Please try again.";
       setBidErrors((prev) => ({
         ...prev,
-        [itemId]: "Failed to place bid. Please try again.",
+        [itemId]: message,
       }));
     } finally {
       setBiddingIds((prev) => prev.filter((x) => x !== itemId));
@@ -445,7 +469,16 @@ const Catalogue = () => {
                   const ended =
                     item.remainingTimeSeconds != null &&
                     item.remainingTimeSeconds <= 0;
+                  // NEW: user can only bid on this row if:
+                  //  - auction not ended
+                  //  - not currently sending a bid
+                  //  - EITHER no activeBidItemId OR this row is their active bid item
 
+                  const biddingLockedToOtherItem =
+                    activeBidItemId != null && activeBidItemId !== itemId;
+
+                  const bidDisabled =
+                    ended || isBidding || biddingLockedToOtherItem;
                   return (
                     <TableRow
                       key={item.id}
@@ -488,8 +521,12 @@ const Catalogue = () => {
                               onChange={(e) =>
                                 handleBidValueChange(itemId, e.target.value)
                               }
-                              disabled={ended || isBidding}
-                              placeholder="Bid"
+                              disabled={bidDisabled}
+                              placeholder={
+                                biddingLockedToOtherItem
+                                  ? "Active bid on another item"
+                                  : "Bid"
+                              }
                             />
                             <Button
                               variant="contained"

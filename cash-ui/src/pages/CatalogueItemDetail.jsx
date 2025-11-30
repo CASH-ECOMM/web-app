@@ -51,6 +51,11 @@ const CatalogueItemDetail = () => {
 
   const [error, setError] = useState("");         // error for UI
   const [infoMessage, setInfoMessage] = useState(""); // success/info message
+  // track which item the user currently has an active bid on (synced with Catalogue)
+  const [activeBidItemId, setActiveBidItemId] = useState(() => {
+    const stored = localStorage.getItem("activeBidItemId");
+    return stored ? Number(stored) : null;
+  });
 
   // FETCH ITEM DETAILS
   useEffect(() => {
@@ -64,7 +69,7 @@ const CatalogueItemDetail = () => {
         // Initialise remainingTime from item (defensive: camelCase + snake_case)
         const initialRt =
           data.remainingTimeSeconds ??
-          data.remaining_time_seconds ?? // <-- added
+          data.remaining_time_seconds ??
           data.remainingTime ??
           data.remainingSeconds ??
           null;
@@ -184,6 +189,9 @@ const CatalogueItemDetail = () => {
 
   const auctionEnded =
     remainingTime != null && remainingTime <= 0;
+  // lock bidding if user already has an active bid on a different item
+  const biddingLockedToOtherItem =
+    activeBidItemId != null && activeBidItemId !== catalogueId;
 
   // Current highest bid based on status or item
   const currentHighestBid = useMemo(() => {
@@ -213,6 +221,13 @@ const CatalogueItemDetail = () => {
   const handlePlaceBid = async () => {
     setError("");
     setInfoMessage("");
+    // enforce single active bid rule same as in Catalogue page
+    if (biddingLockedToOtherItem) {
+      setError(
+        "You already have an active bid on another item. You can only bid on one item at a time."
+      );
+      return;
+    }
 
     const numericBid = Number(bidAmount);
     if (Number.isNaN(numericBid) || numericBid <= 0) {
@@ -243,6 +258,10 @@ const CatalogueItemDetail = () => {
         setError(response.message || "Bid was not accepted.");
       } else {
         setInfoMessage(response?.message || "Bid placed successfully.");
+
+        // mark this item as the active bid item
+        setActiveBidItemId(catalogueId);
+        localStorage.setItem("activeBidItemId", String(catalogueId));
 
         // Refresh status after successful bid
         const s = await getAuctionStatus(catalogueId);
