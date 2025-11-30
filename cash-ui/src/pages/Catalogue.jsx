@@ -305,20 +305,22 @@ const Catalogue = () => {
 
   // DERIVED DATA WITH "ALIVE ONLY" OPTION
 
-  // Filter list if "aliveOnly" is selected
+  // default behaviour = show ONLY alive items.
+  // If sortOption === "all", show alive + ended.
   const filteredItems = useMemo(() => {
-    if (sortOption === "aliveOnly") {
-      return itemsRaw.filter(
-        (item) =>
-          item.remainingTimeSeconds == null || item.remainingTimeSeconds > 0
-      );
+    if (sortOption === "all") {
+      return itemsRaw;
     }
-    return itemsRaw;
+    // show only alive auctions
+    return itemsRaw.filter(
+      (item) =>
+        item.remainingTimeSeconds == null || item.remainingTimeSeconds > 0
+    );
   }, [itemsRaw, sortOption]);
 
-  // For "aliveOnly"
+  // For all
   const effectiveSortOption =
-    sortOption === "aliveOnly" ? "timeAsc" : sortOption;
+    sortOption === "all" ? "timeAsc" : sortOption;
 
   // Sort visible items
   const sortedItems = useMemo(
@@ -388,8 +390,8 @@ const Catalogue = () => {
             <MenuItem value="priceAsc">Price (low to high)</MenuItem>
             <MenuItem value="priceDesc">Price (high to low)</MenuItem>
             <MenuItem value="titleAsc">Title (A–Z)</MenuItem>
-            <MenuItem value="aliveOnly">
-              Alive auctions only (hide ended)
+            <MenuItem value="all">
+              All auctions (alive + ended)
             </MenuItem>
           </Select>
         </FormControl>
