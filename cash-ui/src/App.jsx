@@ -19,6 +19,7 @@ import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
 import AuctionsWon from './pages/AuctionsWon';
 import Home from './pages/Home';
+import Payment from './pages/Payment';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -69,6 +70,10 @@ function App() {
           path="/past-auctions"
           element={isAuthenticated ? <PastAuctions /> : <Login />}
         />
+          <Route
+              path="/payment"
+              element={isAuthenticated ? <Payment /> : <Login />}
+          />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
