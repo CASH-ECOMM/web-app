@@ -74,7 +74,6 @@ function App() {
               path="/payment"
               element={isAuthenticated ? <Payment /> : <Login />}
           />
-
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
