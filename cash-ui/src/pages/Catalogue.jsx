@@ -154,6 +154,22 @@ const Catalogue = () => {
 
     loadItems();
   }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setItemsRaw((prevItems) =>
+        prevItems.map((item) => {
+          const rt = item.remainingTimeSeconds;
+          if (rt == null || rt <= 0) return item;
+          return {
+            ...item,
+            remainingTimeSeconds: Math.max(rt - 1, 0),
+          };
+        })
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // HANDLERS
 
