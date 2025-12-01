@@ -4,6 +4,12 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 import { useAuth, AuthProvider } from './auth/AuthContext';
 
 import Signup from './pages/Signup';
@@ -15,32 +21,55 @@ import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Catalogue from './pages/Catalogue';
+import CatalogueItemDetail from './pages/CatalogueItemDetail';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
 import ChatPopup from './components/ChatPopup';
 import Home from './pages/Home';
 
-function AppRoutes() {
+function AppRoutes({ themePreference, setThemePreference }) {
   const { isAuthenticated } = useAuth();
+
   return (
     <Router>
-      <Navbar />
+      <Navbar
+        themePreference={themePreference}
+        setThemePreference={setThemePreference}
+      />
       {isAuthenticated && <ChatPopup />}
       <Routes>
         <Route path="/" element={<Home />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        {isAuthenticated && (
-          <>
-            <Route path="/upload-item" element={<ItemUpload />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/catalogue" element={<Catalogue />} />
-            <Route path="/my-items" element={<MyItems />} />
-            <Route path="/past-auctions" element={<PastAuctions />} />
-          </>
-        )}
+
+        <Route
+          path="/upload-item"
+          element={isAuthenticated ? <ItemUpload /> : <Login />}
+        />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Profile /> : <Login />}
+        />
+        <Route
+          path="/catalogue"
+          element={isAuthenticated ? <Catalogue /> : <Login />}
+        />
+        <Route
+          path="/catalogue/:id"
+          element={isAuthenticated ? <CatalogueItemDetail /> : <Login />}
+        />
+        <Route
+          path="/my-items"
+          element={isAuthenticated ? <MyItems /> : <Login />}
+        />
+        <Route
+          path="/past-auctions"
+          element={isAuthenticated ? <PastAuctions /> : <Login />}
+        />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
@@ -48,10 +77,47 @@ function AppRoutes() {
 }
 
 function App() {
+  // Theme preference state (light, dark, system)
+  const [themePreference, setThemePreference] = useState(() => {
+    return localStorage.getItem('themePreference') || 'system';
+  });
+
+  // Detect system preferences for dark mode or light mode
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+  // Resolve the actual theme mode based on user preference and system settings
+  const resolvedMode =
+    themePreference === 'system'
+      ? prefersDarkMode
+        ? 'dark'
+        : 'light'
+      : themePreference;
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: resolvedMode,
+        },
+      }),
+    [resolvedMode]
+  );
+
+  // Persist user theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('themePreference', themePreference);
+  }, [themePreference]);
+
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <AppRoutes
+          themePreference={themePreference}
+          setThemePreference={setThemePreference}
+        />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

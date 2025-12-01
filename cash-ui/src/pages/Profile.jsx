@@ -61,7 +61,7 @@ const Profile = () => {
         spacing={3}
         alignItems="center"
         sx={{
-          width: 350,
+          width: 450,
           // bgcolor: 'background.paper',
           py: 3,
           px: 10,
