@@ -32,13 +32,15 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Don't redirect if already on login/signup/auth pages or if it's a login attempt
-      const isAuthEndpoint = error.config?.url?.includes('/users/signin') ||
+      const isAuthEndpoint =
+        error.config?.url?.includes('/users/signin') ||
         error.config?.url?.includes('/users/signup') ||
         error.config?.url?.includes('/users/forgot-password');
-      const isOnAuthPage = window.location.pathname === '/login' ||
+      const isOnAuthPage =
+        window.location.pathname === '/login' ||
         window.location.pathname === '/signup' ||
         window.location.pathname === '/forgot-password';
-      
+
       if (!isAuthEndpoint && !isOnAuthPage) {
         // Token is invalid or expired
         localStorage.removeItem('access_token');
