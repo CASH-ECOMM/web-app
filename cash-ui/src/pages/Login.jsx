@@ -50,7 +50,11 @@ export default function Login() {
       window.location.href = '/catalogue';
     } catch (err) {
       console.error(err);
-      setError('Could not connect to the server. Please try again.');
+      const message =
+        err.response?.data?.message ||
+        err.response?.data ||
+        'Could not connect to the server. Please try again.';
+      setError(message);
     }
   };
 
