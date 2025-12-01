@@ -16,11 +16,14 @@ import Logout from '@mui/icons-material/Logout';
 import Login from '@mui/icons-material/Login';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { logoutUser } from '../services/auth';
 
 const pages = ['Catalogue', 'My Items', 'Past Auctions', 'Contact'];
 
-export default function Navbar() {
+export default function Navbar({ themePreference, setThemePreference }) {
   const [isAuthenticated] = useState(!!localStorage.getItem('access_token'));
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -43,6 +46,27 @@ export default function Navbar() {
     await logoutUser(jwt, userId);
     window.location.href = '/login';
   };
+  // Theme menu state
+  const [themeAnchorEl, setThemeAnchorEl] = React.useState(null);
+  const openThemeMenu = Boolean(themeAnchorEl);
+  // open/close handlers for theme menu
+  const handleThemeButtonClick = (event) => {
+    setThemeAnchorEl(event.currentTarget);
+  };
+  const handleThemeMenuClose = () => {
+    setThemeAnchorEl(null);
+  };
+  const handleSelectTheme = (mode) => {
+    if (typeof setThemePreference === 'function') {
+      setThemePreference(mode); // 'system' | 'light' | 'dark'
+    }
+    setThemeAnchorEl(null);
+  };
+  // choose icon based on current themePreference
+  let ThemeIcon = SettingsBrightnessIcon;
+  if (themePreference === 'light') ThemeIcon = Brightness7Icon;
+  if (themePreference === 'dark') ThemeIcon = Brightness4Icon;
+
   return (
     <AppBar position="sticky" sx={{ width: '100%' }}>
       <Toolbar disableGutters sx={{ px: 3 }}>
@@ -90,6 +114,20 @@ export default function Navbar() {
             </Box>
             {/* Account Menu */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+              {/* Theme toggle button (logged in) */}
+              <Tooltip title="Theme">
+                <IconButton
+                  color="inherit"
+                  onClick={handleThemeButtonClick}
+                  size="small"
+                  sx={{ ml: 1 }}
+                  aria-controls={openThemeMenu ? 'theme-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={openThemeMenu ? 'true' : undefined}
+                >
+                  <ThemeIcon />
+                </IconButton>
+              </Tooltip>
               <Tooltip title="Account">
                 <IconButton
                   onClick={handleClick}
@@ -164,6 +202,20 @@ export default function Navbar() {
           <Box
             sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}
           >
+            {/* Theme toggle button (logged out) */}
+            <Tooltip title="Theme">
+              <IconButton
+                color="inherit"
+                onClick={handleThemeButtonClick}
+                size="small"
+                sx={{ mr: 1 }}
+                aria-controls={openThemeMenu ? 'theme-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={openThemeMenu ? 'true' : undefined}
+              >
+                <ThemeIcon />
+              </IconButton>
+            </Tooltip>
             <Button
               variant="outlined"
               color="inherit"
@@ -174,6 +226,43 @@ export default function Navbar() {
             </Button>
           </Box>
         )}
+        {/* Theme selection menu (shared for both auth / non-auth) */}
+        <Menu
+          anchorEl={themeAnchorEl}
+          id="theme-menu"
+          open={openThemeMenu}
+          onClose={handleThemeMenuClose}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        >
+          <MenuItem
+            selected={themePreference === 'system'}
+            onClick={() => handleSelectTheme('system')}
+          >
+            <ListItemIcon>
+              <SettingsBrightnessIcon fontSize="small" />
+            </ListItemIcon>
+            System default
+          </MenuItem>
+          <MenuItem
+            selected={themePreference === 'light'}
+            onClick={() => handleSelectTheme('light')}
+          >
+            <ListItemIcon>
+              <Brightness7Icon fontSize="small" />
+            </ListItemIcon>
+            Light
+          </MenuItem>
+          <MenuItem
+            selected={themePreference === 'dark'}
+            onClick={() => handleSelectTheme('dark')}
+          >
+            <ListItemIcon>
+              <Brightness4Icon fontSize="small" />
+            </ListItemIcon>
+            Dark
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );
