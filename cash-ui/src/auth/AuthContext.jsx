@@ -82,6 +82,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('email');
     localStorage.removeItem('firstName');
     localStorage.removeItem('lastName');
+    localStorage.removeItem('activeBidItemId');
     setIsAuthenticated(false);
     setUser(null);
     window.dispatchEvent(new Event('auth-changed'));
