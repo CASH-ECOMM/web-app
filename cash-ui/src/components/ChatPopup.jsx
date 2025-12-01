@@ -1,12 +1,36 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useImmer } from 'use-immer';
 import Chatbot from './Chatbot';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+function getInitialMessage() {
+  const userName = localStorage.getItem('firstName') || 'there';
+  return [
+    {
+      role: 'assistant',
+      content: `Hey, ${userName}! How can I assist you today?`,
+    },
+  ];
+}
 
 export default function ChatPopup() {
   const [open, setOpen] = useState(false);
+
+  // Lift chat state up so it persists across page navigations
+  const [chatId, setChatId] = useState(null);
+  const [messages, setMessages] = useImmer(getInitialMessage);
+
+  // Reset chat to initial state
+  const handleResetChat = useCallback(() => {
+    setChatId(null);
+    setMessages(getInitialMessage());
+  }, [setMessages]);
+
   return (
     <>
       <Box
@@ -54,18 +78,29 @@ export default function ChatPopup() {
             flexDirection: 'column',
           }}
         >
-          <Typography
-            variant="h6"
-            align="center"
+          <Box
             sx={{
-              // mb: 1,
-              backgroundColor: '#1976d2',
-              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: 'primary.main',
+              color: 'primary.contrastText',
               py: 1,
+              px: 2,
             }}
           >
-            CashBot
-          </Typography>
+            <Box sx={{ width: 32 }} /> {/* Spacer for centering */}
+            <Typography variant="h6">CashBot</Typography>
+            <Tooltip title="Reset chat">
+              <IconButton
+                size="small"
+                onClick={handleResetChat}
+                sx={{ color: 'white' }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Box
             sx={{
               flexGrow: 1,
@@ -75,7 +110,12 @@ export default function ChatPopup() {
               flexDirection: 'column',
             }}
           >
-            <Chatbot />
+            <Chatbot
+              chatId={chatId}
+              setChatId={setChatId}
+              messages={messages}
+              setMessages={setMessages}
+            />
           </Box>
         </Box>
       )}

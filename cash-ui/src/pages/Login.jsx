@@ -9,6 +9,7 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/AuthContext';
 import apiClient from '../api/api';
@@ -17,6 +18,7 @@ export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -47,7 +49,7 @@ export default function Login() {
       localStorage.setItem('firstName', userData.firstName);
       localStorage.setItem('lastName', userData.lastName);
       login();
-      window.location.href = '/catalogue';
+      navigate('/catalogue');
     } catch (err) {
       console.error(err);
       const message =
@@ -109,15 +111,20 @@ export default function Login() {
           </Button>
 
           <Button
+            component={RouterLink}
+            to="/forgot-password"
             fullWidth
             sx={{ mt: 2 }}
-            href="/forgot-password"
-            // onClick={() => navigate('/forgot-password')}
           >
             Forgot password?
           </Button>
 
-          <Button fullWidth sx={{ mt: 1 }} href="/signup">
+          <Button
+            component={RouterLink}
+            to="/signup"
+            fullWidth
+            sx={{ mt: 1 }}
+          >
             Create an account
           </Button>
         </Box>

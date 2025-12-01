@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Button,
@@ -82,10 +83,11 @@ export default function HomePage() {
             style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
             <Button
+              component={RouterLink}
+              to="/upload-item"
               variant="contained"
               color="primary"
               size="medium"
-              href="/login"
               sx={{ borderRadius: 3, px: 4, py: 2 }}
             >
               Post an Item
@@ -99,19 +101,21 @@ export default function HomePage() {
             style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
             <Button
+              component={RouterLink}
+              to="/login"
               variant="contained"
               color="primary"
               size="medium"
-              href="/login"
               sx={{ borderRadius: 3, px: 4, py: 2 }}
             >
               Log In
             </Button>
             <Button
+              component={RouterLink}
+              to="/signup"
               variant="outlined"
               color="inherit"
               size="medium"
-              href="/signup"
               sx={{ borderRadius: 3, px: 4, py: 2 }}
             >
               Sign Up

@@ -4,12 +4,17 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useEffect, useRef } from 'react';
+import { useTheme } from '@mui/material/styles';
 
 const USER_BUBBLE_COLOR = '#3c80daff';
-const ASSISTANT_BUBBLE_COLOR = '#E9E9EB';
 
 function ChatMessages({ messages, isLoading }) {
   const scrollRef = useRef(null);
+  const theme = useTheme();
+
+  // Use theme-aware color for assistant bubble
+  const assistantBubbleColor =
+    theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#E9E9EB';
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -48,7 +53,7 @@ function ChatMessages({ messages, isLoading }) {
               sx={{
                 px: 1.5,
                 maxWidth: '85%',
-                bgcolor: isUser ? USER_BUBBLE_COLOR : ASSISTANT_BUBBLE_COLOR,
+                bgcolor: isUser ? USER_BUBBLE_COLOR : assistantBubbleColor,
                 color: isUser ? 'common.white' : 'text.primary',
                 borderRadius: isUser
                   ? '18px 18px 2px 18px'

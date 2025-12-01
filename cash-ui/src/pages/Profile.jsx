@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
@@ -15,6 +16,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [signoutLoading, setSignoutLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Get userId from localStorage (for fetching profile)
   const userId = localStorage.getItem('userId');
@@ -44,7 +46,7 @@ const Profile = () => {
     setSignoutLoading(true);
     setError('');
     await logout();
-    window.location.href = '/login';
+    navigate('/login');
     setSignoutLoading(false);
   };
 

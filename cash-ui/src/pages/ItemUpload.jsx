@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -15,6 +16,7 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import apiClient from '../api/api';
 
 const ItemUpload = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -176,7 +178,7 @@ const ItemUpload = () => {
       console.log('Item posted successfully:', response.data);
 
       // Only redirect on success
-      window.location.href = '/catalogue';
+      navigate('/catalogue');
     } catch (err) {
       console.error('Error posting item:', err);
 

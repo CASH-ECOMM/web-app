@@ -1,21 +1,10 @@
 import { useState } from 'react';
-import { useImmer } from 'use-immer';
 import { createChat, sendChatMessage } from '../api/api';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 
-function Chatbot() {
-  const userName = localStorage.getItem('firstName') || 'there';
-
-  const [chatId, setChatId] = useState(null);
-  const [messages, setMessages] = useImmer([
-    {
-      role: 'assistant',
-      content: `Hey, ${userName}! How can I assist you today?`,
-    },
-  ]);
+function Chatbot({ chatId, setChatId, messages, setMessages }) {
   const [newMessage, setNewMessage] = useState('');
 
   const lastMessage = messages[messages.length - 1];
