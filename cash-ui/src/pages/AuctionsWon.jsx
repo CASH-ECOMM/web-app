@@ -72,6 +72,7 @@ const AuctionsWon = () => {
                 spacing={3}
                 width="100%"
             >
+                <Typography variant="h4" fontWeight="bold">Auctions Won</Typography>
                 {loading ? (
                     <Typography>Loading...</Typography>
                 ) : error ? (
