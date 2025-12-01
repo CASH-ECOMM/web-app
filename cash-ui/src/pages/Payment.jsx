@@ -176,22 +176,22 @@ const Payment = () => {
                         <Stack spacing={2} width="100%" alignItems="center">
                             <Typography variant="h3">{catalogueInfo.title}</Typography>
                             <Divider sx={{ width: '100%' }} />
-                            <Stack direction="row" alignItems="center" spacing={35}>
-                                <Typography variant="h6">Subtotal</Typography>
-                                <Typography variant="h6">${totalCost.item_cost}</Typography>
+                            <Stack direction="row" spacing={30}>
+                                <Typography variant="h6" sx={{ width: '75%' }}>Subtotal</Typography>
+                                <Typography variant="h6" sx={{ width: '25%' }}>${totalCost.item_cost}</Typography>
                             </Stack>
-                            <Stack direction="row" alignItems="center" spacing={35}>
-                                <Typography variant="h6">Shipping</Typography>
-                                <Typography variant="h6">${totalCost.shipping_cost}</Typography>
+                            <Stack direction="row" spacing={30}>
+                                <Typography variant="h6" sx={{ width: '75%' }}>Shipping</Typography>
+                                <Typography variant="h6" sx={{ width: '25%' }}>${totalCost.shipping_cost}</Typography>
                             </Stack>
-                            <Stack direction="row" alignItems="center" spacing={35}>
-                                <Typography variant="h6">Tax</Typography>
-                                <Typography variant="h6">${totalCost.hst_amount}</Typography>
+                            <Stack direction="row" spacing={30}>
+                                <Typography variant="h6" sx={{ width: '75%' }}>Tax</Typography>
+                                <Typography variant="h6" sx={{ width: '25%' }}>${totalCost.hst_amount}</Typography>
                             </Stack>
                             <Divider sx={{ width: '100%' }} />
-                            <Stack direction="row" alignItems="center" spacing={35}>
-                                <Typography variant="h5" fontWeight="bold">Total</Typography>
-                                <Typography variant="h5" fontWeight="bold">${totalCost.total_cost}</Typography>
+                            <Stack direction="row" spacing={30}>
+                                <Typography variant="h5" fontWeight="bold" sx={{ width: '75%' }}>Total</Typography>
+                                <Typography variant="h5" fontWeight="bold" sx={{ width: '25%' }}>${totalCost.total_cost}</Typography>
                             </Stack>
                         </Stack>
                     </Box>
