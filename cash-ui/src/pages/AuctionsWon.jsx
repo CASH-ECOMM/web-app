@@ -4,6 +4,8 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import apiClient from '../api/api';
 import Box from "@mui/material/Box";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 
 const AuctionsWon = () => {
@@ -13,6 +15,7 @@ const AuctionsWon = () => {
     const [wins, setWins] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [expeditedShipping, setExpeditedShipping] = useState({});
 
     // Get userId from localStorage
     const userId = localStorage.getItem('userId');
@@ -36,6 +39,24 @@ const AuctionsWon = () => {
             setLoading(false);
         }
     }, [userId]);
+
+    const handleSwitchChange = (catalogueId) => (event) => {
+        const checked = event.target.checked;
+        setExpeditedShipping((prev) => ({
+            ...prev,
+            [catalogueId]: checked,
+        }));
+    };
+
+    const handlePayNow = (item) => {
+        const expedited = expeditedShipping[item.catalogueId] || false;
+        navigate('/payment', {
+            state: {
+                catalogueId: item.catalogueId,
+                expeditedShipping: expedited,
+            },
+        });
+    };
 
     return (
         <Box
@@ -71,11 +92,21 @@ const AuctionsWon = () => {
                         >
                             <Typography sx={{ width: 80 }}>#{item.catalogueId}</Typography>
                             <Typography sx={{ flex: 1 }}>{item.itemName}</Typography>
-                            <Typography sx={{ width: 120 }}>${item.finalPrice}</Typography>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={!!expeditedShipping[item.catalogueId]}
+                                        onChange={handleSwitchChange(item.catalogueId)}
+                                    />
+                                }
+                                label="Expedited Shipping"
+                                sx={{ width: 400 }}
+                            />
+                            <Typography sx={{ width: 120, fontWeight: 'bold' }}>${item.finalPrice}</Typography>
                             <Button
                                 variant="contained"
                                 size="small"
-                                onClick={() => navigate('/payment', {state: {catalogueId: item.catalogueId}})}
+                                onClick={() => handlePayNow(item)}
                             >
                                 Pay Now
                             </Button>

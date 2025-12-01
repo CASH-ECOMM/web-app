@@ -14,6 +14,7 @@ const Payment = () => {
 
     // Get catalogueId and finalPrice from AuctionsWon page via state
     const catalogueId = useLocation().state.catalogueId;
+    const expeditedShipping = useLocation().state.expeditedShipping;
 
     useEffect(() => {
 
@@ -37,7 +38,7 @@ const Payment = () => {
         const fetchTotalCost = async () => {
             setError('');
             try {
-                const res = await apiClient.post(`/payments/total-cost`, {item_id: catalogueId, shipping_type: "REGULAR"});
+                const res = await apiClient.post(`/payments/total-cost`, {item_id: catalogueId, shipping_type: expeditedShipping? "EXPEDITED" : "REGULAR"});
                 setTotalCost(res.data);
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to retrieve total cost');
@@ -50,7 +51,7 @@ const Payment = () => {
             setError('Total cost not found.');
             setLoading(false);
         }
-    }, [catalogueId]);
+    }, [catalogueId, expeditedShipping]);
 
     const handleChange = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
