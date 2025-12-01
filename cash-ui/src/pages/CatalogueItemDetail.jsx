@@ -405,7 +405,7 @@ const CatalogueItemDetail = () => {
                 <TextField
                   size="small"
                   type="number"
-                  inputProps={{ step: "0.01", min: 0 }}
+                  inputProps={{ step: "1", min: 0 }}
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   disabled={auctionEnded || placingBid}
