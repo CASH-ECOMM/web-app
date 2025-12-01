@@ -119,12 +119,7 @@ export default function Login() {
             Forgot password?
           </Button>
 
-          <Button
-            component={RouterLink}
-            to="/signup"
-            fullWidth
-            sx={{ mt: 1 }}
-          >
+          <Button component={RouterLink} to="/signup" fullWidth sx={{ mt: 1 }}>
             Create an account
           </Button>
         </Box>
