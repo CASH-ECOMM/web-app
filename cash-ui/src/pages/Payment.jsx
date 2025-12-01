@@ -76,8 +76,12 @@ const Payment = () => {
             if (!res.data) {
                 setError(res?.data?.message || 'Invalid payment credentials.');
             }
-
-            setTimeout(() => navigate(null, {state: {paymentId: res.data.paymentId}}), 1500); // Navigates to the receipt page with state for paymentId
+            if (res.data.success === false) {
+                setError(res?.data?.message || 'Payment failed. Please check your details and try again.');
+            }
+            else {
+                setTimeout(() => navigate('/confirmation', {state: {payment_id: res.data.payment_id}}), 1500); // Navigates to the receipt page with state for paymentId
+            }
         } catch (err) {
             console.error(err);
             setError('Could not connect to the server. Please try again.');
