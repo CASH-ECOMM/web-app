@@ -532,7 +532,7 @@ const Catalogue = () => {
                             <TextField
                               size="small"
                               type="number"
-                              inputProps={{ step: "0.01", min: 0 }}
+                              inputProps={{ step: "1", min: 0 }}
                               value={bidValue}
                               onChange={(e) =>
                                 handleBidValueChange(itemId, e.target.value)
