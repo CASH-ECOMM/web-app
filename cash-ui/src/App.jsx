@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -22,7 +21,10 @@ import Catalogue from './pages/Catalogue';
 import CatalogueItemDetail from './pages/CatalogueItemDetail';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
+import AuctionsWon from './pages/AuctionsWon';
 import Home from './pages/Home';
+import Payment from './pages/Payment';
+import Confirmation from './pages/Confirmation';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -106,6 +108,18 @@ function App() {
             path="/past-auctions"
             element={isAuthenticated ? <PastAuctions /> : <Login />}
           />
+            <Route
+                path="/auctions-won"
+                element={isAuthenticated ? <AuctionsWon /> : <Login />}
+            />
+            <Route
+                path="/payment"
+                element={isAuthenticated ? <Payment /> : <Login />}
+            />
+            <Route
+                path="/confirmation"
+                element={isAuthenticated ? <Confirmation /> : <Login />}
+            />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
