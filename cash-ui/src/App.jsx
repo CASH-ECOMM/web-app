@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -25,7 +24,10 @@ import CatalogueItemDetail from './pages/CatalogueItemDetail';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
 import ChatPopup from './components/ChatPopup';
+import AuctionsWon from './pages/AuctionsWon';
 import Home from './pages/Home';
+import Payment from './pages/Payment';
+import Confirmation from './pages/Confirmation';
 
 function AppRoutes({ themePreference, setThemePreference }) {
   const { isAuthenticated } = useAuth();
@@ -116,7 +118,55 @@ function App() {
           themePreference={themePreference}
           setThemePreference={setThemePreference}
         />
-      </AuthProvider>
+        </AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          <Route
+            path="/upload-item"
+            element={isAuthenticated ? <ItemUpload /> : <Login />}
+          />
+          <Route
+            path="/profile"
+            element={isAuthenticated ? <Profile /> : <Login />}
+          />
+          <Route
+            path="/catalogue"
+            element={isAuthenticated ? <Catalogue /> : <Login />}
+          />
+          <Route
+            path="/catalogue/:id"
+            element={isAuthenticated ? <CatalogueItemDetail /> : <Login />}
+          />
+          <Route
+            path="/my-items"
+            element={isAuthenticated ? <MyItems /> : <Login />}
+          />
+          <Route
+            path="/past-auctions"
+            element={isAuthenticated ? <PastAuctions /> : <Login />}
+          />
+            <Route
+                path="/auctions-won"
+                element={isAuthenticated ? <AuctionsWon /> : <Login />}
+            />
+            <Route
+                path="/payment"
+                element={isAuthenticated ? <Payment /> : <Login />}
+            />
+            <Route
+                path="/confirmation"
+                element={isAuthenticated ? <Confirmation /> : <Login />}
+            />
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }

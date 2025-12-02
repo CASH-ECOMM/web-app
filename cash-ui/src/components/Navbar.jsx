@@ -22,7 +22,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { useAuth } from '../auth/AuthContext';
 
-const pages = ['Catalogue', 'My Items', 'Past Auctions', 'Contact'];
+const pages = ['Catalogue', 'My Items', 'Auctions Won', 'Past Auctions', 'Contact'];
 
 export default function Navbar({ themePreference, setThemePreference }) {
   const { isAuthenticated, logout } = useAuth();
@@ -97,6 +97,7 @@ export default function Navbar({ themePreference, setThemePreference }) {
                 const pageRoutes = {
                   Catalogue: '/catalogue',
                   'My Items': '/my-items',
+                  'Auctions Won': '/auctions-won',
                   'Past Auctions': '/past-auctions',
                   Contact: '/contact',
                 };
