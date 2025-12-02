@@ -4,9 +4,10 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Build arguments for environment variables (with defaults for production)
-ARG VITE_API_URL=https://router-service-production.up.railway.app/api
-ARG VITE_AI_API_URL=https://ai-agent-production-b7fd.up.railway.app/api
+# Build arguments for environment variables
+ARG VITE_API_URL
+ARG VITE_AI_API_URL
+
 # Set them as environment variables for the build
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_AI_API_URL=$VITE_AI_API_URL
