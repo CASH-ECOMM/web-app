@@ -22,7 +22,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { useAuth } from '../auth/AuthContext';
 
-const pages = ['Catalogue', 'My Items', 'Auctions Won', 'Past Auctions', 'Contact'];
+const pages = ['Catalogue', 'Auctions Won'];
 
 export default function Navbar({ themePreference, setThemePreference }) {
   const { isAuthenticated, logout } = useAuth();
@@ -96,10 +96,10 @@ export default function Navbar({ themePreference, setThemePreference }) {
                 // Map page names to routes
                 const pageRoutes = {
                   Catalogue: '/catalogue',
-                  'My Items': '/my-items',
+                  // 'My Items': '/my-items',
                   'Auctions Won': '/auctions-won',
-                  'Past Auctions': '/past-auctions',
-                  Contact: '/contact',
+                  // 'Past Auctions': '/past-auctions',
+                  // Contact: '/contact',
                 };
                 return (
                   <Button
@@ -114,7 +114,7 @@ export default function Navbar({ themePreference, setThemePreference }) {
                 );
               })}
             </Box>
-            {/* Account Menu */}
+            {/*Account Menu */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
               {/* Theme toggle button (logged in) */}
               <Tooltip title="Theme">
