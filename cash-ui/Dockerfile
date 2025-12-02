@@ -4,6 +4,14 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# Build arguments for environment variables
+ARG VITE_API_URL
+ARG VITE_AI_API_URL
+
+# Set them as environment variables for the build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_AI_API_URL=$VITE_AI_API_URL
+
 # Copy package.json and package-lock.json (if present)
 COPY package*.json ./
 

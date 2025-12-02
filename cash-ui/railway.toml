@@ -1,0 +1,6 @@
+[build]
+dockerfilePath = "Dockerfile"
+
+[build.args]
+VITE_API_URL = "${{VITE_API_URL}}"
+VITE_AI_API_URL = "${{VITE_AI_API_URL}}"
