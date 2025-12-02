@@ -114,7 +114,7 @@ export default function Navbar({ themePreference, setThemePreference }) {
                 );
               })}
             </Box>
-            {/* Account Menu */}
+            {/*Account Menu */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
               {/* Theme toggle button (logged in) */}
               <Tooltip title="Theme">
