@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
@@ -8,17 +9,18 @@ import Button from '@mui/material/Button';
 import { deepOrange } from '@mui/material/colors';
 import LogoutIcon from '@mui/icons-material/Logout';
 import apiClient from '../api/api';
-import { logoutUser } from '../services/auth';
+import { useAuth } from '../auth/AuthContext';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [signoutLoading, setSignoutLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Get userId and jwt from localStorage (or your auth context)
+  // Get userId from localStorage (for fetching profile)
   const userId = localStorage.getItem('userId');
-  const jwt = localStorage.getItem('access_token');
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,12 +45,8 @@ const Profile = () => {
   const handleSignOut = async () => {
     setSignoutLoading(true);
     setError('');
-    const result = await logoutUser(jwt, userId);
-    if (result.success) {
-      window.location.href = '/login';
-    } else {
-      setError(result.message || 'Logout failed');
-    }
+    await logout();
+    navigate('/login');
     setSignoutLoading(false);
   };
 

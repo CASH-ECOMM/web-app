@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Button,
@@ -8,6 +9,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import { useAuth } from '../auth/AuthContext';
 
 const rotatingPhrases = [
   'Cool Auctions Start Here',
@@ -20,6 +22,7 @@ const rotatingPhrases = [
 export default function HomePage() {
   // Rotating text state
   const [phraseIndex, setPhraseIndex] = React.useState(0);
+  const { isAuthenticated } = useAuth();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -72,30 +75,53 @@ export default function HomePage() {
             you're signed in.
           </Typography>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ borderRadius: 3, px: 4, py: 2 }}
+        {isAuthenticated ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
-            Log In
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="large"
-            sx={{ borderRadius: 3, px: 4, py: 2 }}
+            <Button
+              component={RouterLink}
+              to="/upload-item"
+              variant="contained"
+              color="primary"
+              size="medium"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Post an Item
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}
           >
-            Sign Up
-          </Button>
-        </motion.div>
+            <Button
+              component={RouterLink}
+              to="/login"
+              variant="contained"
+              color="primary"
+              size="medium"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Log In
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/signup"
+              variant="outlined"
+              color="inherit"
+              size="medium"
+              sx={{ borderRadius: 3, px: 4, py: 2 }}
+            >
+              Sign Up
+            </Button>
+          </motion.div>
+        )}
       </Box>
 
       {/* Feature Cards with AI box */}

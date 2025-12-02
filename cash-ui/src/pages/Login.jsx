@@ -9,12 +9,16 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../auth/AuthContext';
+import apiClient from '../api/api';
 
 export default function Login() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,22 +28,11 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await fetch('/api/users/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-        }),
-        credentials: 'include',
+      const res = await apiClient.post('/users/signin', {
+        username: form.username,
+        password: form.password,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Invalid username or password.');
-        return;
-      }
+      const data = res.data;
 
       if (!data.jwt) {
         setError('Login failed. No access token returned.');
@@ -48,12 +41,22 @@ export default function Login() {
 
       localStorage.setItem('access_token', data.jwt);
       localStorage.setItem('userId', data.userId);
-      window.dispatchEvent(new Event('auth-changed'));
 
+      const userRes = await apiClient.get(`/users/${data.userId}`);
+      const userData = userRes.data;
+      localStorage.setItem('username', userData.username);
+      localStorage.setItem('email', userData.email);
+      localStorage.setItem('firstName', userData.firstName);
+      localStorage.setItem('lastName', userData.lastName);
+      login();
       navigate('/catalogue');
     } catch (err) {
       console.error(err);
-      setError('Could not connect to the server. Please try again.');
+      const message =
+        err.response?.data?.message ||
+        err.response?.data ||
+        'Could not connect to the server. Please try again.';
+      setError(message);
     }
   };
 
@@ -108,14 +111,15 @@ export default function Login() {
           </Button>
 
           <Button
+            component={RouterLink}
+            to="/forgot-password"
             fullWidth
             sx={{ mt: 2 }}
-            onClick={() => navigate('/forgot-password')}
           >
             Forgot password?
           </Button>
 
-          <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/signup')}>
+          <Button component={RouterLink} to="/signup" fullWidth sx={{ mt: 1 }}>
             Create an account
           </Button>
         </Box>

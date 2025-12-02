@@ -9,6 +9,10 @@ export async function logoutUser(jwt, userId) {
     if (res.data?.success) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      localStorage.removeItem('email');
+      localStorage.removeItem('firstName');
+      localStorage.removeItem('lastName');
       return { success: true };
     } else {
       return { success: false, message: res.data?.message || 'Logout failed' };

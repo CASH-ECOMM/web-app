@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
@@ -19,12 +20,13 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
-import { logoutUser } from '../services/auth';
+import { useAuth } from '../auth/AuthContext';
 
 const pages = ['Catalogue', 'My Items', 'Auctions Won', 'Past Auctions', 'Contact'];
 
 export default function Navbar({ themePreference, setThemePreference }) {
-  const [isAuthenticated] = useState(!!localStorage.getItem('access_token'));
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -32,19 +34,17 @@ export default function Navbar({ themePreference, setThemePreference }) {
     setAnchorEl(event.currentTarget);
   };
   const handleItemUpload = () => {
-    window.location.href = '/upload-item';
+    navigate('/upload-item');
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
   const handleMyAccount = () => {
-    window.location.href = '/profile';
+    navigate('/profile');
   };
   const handleLogout = async () => {
-    const jwt = localStorage.getItem('access_token');
-    const userId = localStorage.getItem('userId');
-    await logoutUser(jwt, userId);
-    window.location.href = '/login';
+    await logout();
+    navigate('/login');
   };
   // Theme menu state
   const [themeAnchorEl, setThemeAnchorEl] = React.useState(null);
@@ -74,8 +74,8 @@ export default function Navbar({ themePreference, setThemePreference }) {
         <Typography
           variant="h6"
           noWrap
-          component="a"
-          href="/"
+          component={RouterLink}
+          to="/"
           sx={{
             mr: 4,
             display: 'flex',
@@ -103,10 +103,11 @@ export default function Navbar({ themePreference, setThemePreference }) {
                 };
                 return (
                   <Button
+                    component={RouterLink}
+                    to={pageRoutes[page]}
                     variant="text"
                     key={page}
                     sx={{ color: 'white', display: 'block' }}
-                    href={pageRoutes[page]}
                   >
                     {page}
                   </Button>
@@ -143,6 +144,7 @@ export default function Navbar({ themePreference, setThemePreference }) {
               </Tooltip>
             </Box>
             <Menu
+              disableScrollLock
               anchorEl={anchorEl}
               id="account-menu"
               open={open}
@@ -218,10 +220,11 @@ export default function Navbar({ themePreference, setThemePreference }) {
               </IconButton>
             </Tooltip>
             <Button
+              component={RouterLink}
+              to="/login"
               variant="outlined"
               color="inherit"
               startIcon={<Login />}
-              href="/login"
             >
               Login
             </Button>

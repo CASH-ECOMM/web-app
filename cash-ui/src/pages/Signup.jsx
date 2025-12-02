@@ -75,11 +75,6 @@ export default function Signup() {
         setError('Signup failed.');
         return;
       }
-      localStorage.setItem('username', res.data.username);
-      localStorage.setItem('email', res.data.email);
-      localStorage.setItem('firstName', res.data.firstName);
-      localStorage.setItem('lastName', res.data.lastName);
-
       setSuccess(res.data.message || 'Account created successfully!');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {

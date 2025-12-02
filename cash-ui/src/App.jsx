@@ -9,6 +9,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
+import { useAuth, AuthProvider } from './auth/AuthContext';
+
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
@@ -21,20 +23,68 @@ import Catalogue from './pages/Catalogue';
 import CatalogueItemDetail from './pages/CatalogueItemDetail';
 import MyItems from './pages/MyItems';
 import PastAuctions from './pages/PastAuctions';
+import ChatPopup from './components/ChatPopup';
 import AuctionsWon from './pages/AuctionsWon';
 import Home from './pages/Home';
 import Payment from './pages/Payment';
 import Confirmation from './pages/Confirmation';
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem('access_token')
+function AppRoutes({ themePreference, setThemePreference }) {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Router>
+      <Navbar
+        themePreference={themePreference}
+        setThemePreference={setThemePreference}
+      />
+      {isAuthenticated && <ChatPopup />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route
+          path="/upload-item"
+          element={isAuthenticated ? <ItemUpload /> : <Login />}
+        />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Profile /> : <Login />}
+        />
+        <Route
+          path="/catalogue"
+          element={isAuthenticated ? <Catalogue /> : <Login />}
+        />
+        <Route
+          path="/catalogue/:id"
+          element={isAuthenticated ? <CatalogueItemDetail /> : <Login />}
+        />
+        <Route
+          path="/my-items"
+          element={isAuthenticated ? <MyItems /> : <Login />}
+        />
+        <Route
+          path="/past-auctions"
+          element={isAuthenticated ? <PastAuctions /> : <Login />}
+        />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
-  //Theme preference state (light, dark, system)
+}
+
+function App() {
+  // Theme preference state (light, dark, system)
   const [themePreference, setThemePreference] = useState(() => {
     return localStorage.getItem('themePreference') || 'system';
   });
-  // Detect system perferences for dark mode or light mode
+
+  // Detect system preferences for dark mode or light mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   // Resolve the actual theme mode based on user preference and system settings
@@ -54,28 +104,21 @@ function App() {
       }),
     [resolvedMode]
   );
+
   // Persist user theme preference to localStorage
   useEffect(() => {
     localStorage.setItem('themePreference', themePreference);
   }, [themePreference]);
 
-  useEffect(() => {
-    const handleAuthChange = () => {
-      setIsAuthenticated(!!localStorage.getItem('access_token'));
-    };
-
-    window.addEventListener('auth-changed', handleAuthChange);
-    return () => window.removeEventListener('auth-changed', handleAuthChange);
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Navbar
+      <AuthProvider>
+        <AppRoutes
           themePreference={themePreference}
           setThemePreference={setThemePreference}
         />
+        </AuthProvider>
         <Routes>
           <Route path="/" element={<Home />} />
 

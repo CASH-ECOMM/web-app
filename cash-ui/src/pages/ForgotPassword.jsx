@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Avatar,
   Button,
@@ -9,7 +10,8 @@ import {
   Alert,
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { useNavigate } from 'react-router-dom';
+
+import apiClient from '../api/api';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -23,23 +25,17 @@ export default function ForgotPassword() {
     setError('');
     setNotice('');
 
-    const res = await fetch('/api/users/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(
-        data.message || 'Unable to send reset link. Email may not exist.'
+    try {
+      await apiClient.post('/users/forgot-password', { username, email });
+      setNotice(
+        'If the username and email exist, a password reset link was sent.'
       );
-      return;
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          'Unable to send reset link. Email may not exist.'
+      );
     }
-
-    setNotice(
-      'If the username and email exist, a password reset link was sent.'
-    );
   };
 
   return (
