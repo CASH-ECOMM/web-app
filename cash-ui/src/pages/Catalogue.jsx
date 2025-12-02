@@ -486,9 +486,9 @@ const Catalogue = () => {
                     item.remainingTimeSeconds != null &&
                     item.remainingTimeSeconds <= 0;
                   // NEW: user can only bid on this row if:
-                  //  - auction not ended
-                  //  - not currently sending a bid
-                  //  - EITHER no activeBidItemId OR this row is their active bid item
+                  //  auction not ended
+                  //  not currently sending a bid
+                  //  EITHER no activeBidItemId OR this row is their active bid item
 
                   const biddingLockedToOtherItem =
                     activeBidItemId != null && activeBidItemId !== itemId;
