@@ -10,9 +10,8 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
+  build-and-push-production:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,21 +23,39 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract image metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/cash-ecomm/web-app
-          tags: |
-            type=ref,event=branch,branch=main
-            type=sha
-            latest
-
-      - name: Build and push Docker image
+      - name: Build and push Production Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./cash-ui
           file: ./cash-ui/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ghcr.io/cash-ecomm/web-app:latest
+            ghcr.io/cash-ecomm/web-app:${{ github.sha }}
+          build-args: |
+            VITE_API_URL=https://router-service-production.up.railway.app/api
+            VITE_AI_API_URL=https://ai-agent-production-b7fd.up.railway.app/api
+
+  build-and-push-local:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Local Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./cash-ui
+          file: ./cash-ui/Dockerfile
+          push: true
+          tags: ghcr.io/cash-ecomm/web-app:local
+          build-args: |
+            VITE_API_URL=http://localhost:8080/api
+            VITE_AI_API_URL=http://localhost:8000/api
