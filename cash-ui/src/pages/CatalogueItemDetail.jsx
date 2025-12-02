@@ -330,8 +330,8 @@ const CatalogueItemDetail = () => {
       <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={3}>
         {/* Left column: description */}
         <Box flex={1}>
-          <Typography variant="subtitle1" gutterBottom>
-            Description from seller
+          <Typography variant="h4" gutterBottom>
+            Description
           </Typography>
           <Card variant="outlined">
             <CardContent>
@@ -346,6 +346,10 @@ const CatalogueItemDetail = () => {
         <Box flex={1} maxWidth={{ md: 420 }}>
           <Card variant="outlined">
             <CardContent>
+              {/* Bid details header */}
+              <Typography variant="h4" gutterBottom>
+                Bid Details
+              </Typography>
               {/* Timer */}
               <Typography variant="subtitle2" color="text.secondary">
                 Time remaining
