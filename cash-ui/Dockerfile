@@ -17,17 +17,19 @@ COPY . .
 RUN npm run build
 
 # ---
-# Production image: serve with nginx
-FROM nginx:alpine
+# Production image: serve with 'serve' package
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install serve globally
+RUN npm install -g serve
 
 # Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
 
-# Copy custom nginx config (for SPA routing)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Expose port 3000
+EXPOSE 3000
 
-# Expose port 80
-EXPOSE 80
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start serve (serves static files with SPA support)
+CMD ["serve", "-s", "dist", "-l", "3000"]
